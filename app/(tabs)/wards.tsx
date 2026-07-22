@@ -10,8 +10,7 @@ import {
   Pressable,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather , Ionicons } from "@expo/vector-icons";
 import { useApp } from "@/context/AppContext";
 import Colors from "@/constants/colors";
 
