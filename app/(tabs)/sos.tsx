@@ -5,6 +5,19 @@ import {
 } from "react-native";
 import * as FileSystem from "expo-file-system";
 import { getDistrictCenter } from "@/constants/districts";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import * as Location from "expo-location";
+import * as Haptics from "expo-haptics";
+import { Accelerometer } from "expo-sensors";
+import { Audio } from "expo-av";
+import * as Speech from "expo-speech";
+import * as Notifications from "expo-notifications";
+import Colors from "@/constants/colors";
+import { useApp } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
+import type { GeoPoint } from "@/context/AppContext";
 
 class SOSErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean; error: string }> {
   constructor(props: any) {
@@ -39,19 +52,6 @@ class SOSErrorBoundary extends Component<{ children: React.ReactNode }, { hasErr
     return this.props.children;
   }
 }
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import * as Location from "expo-location";
-import * as Haptics from "expo-haptics";
-import { Accelerometer } from "expo-sensors";
-import { Audio } from "expo-av";
-import * as Speech from "expo-speech";
-import * as Notifications from "expo-notifications";
-import Colors from "@/constants/colors";
-import { useApp } from "@/context/AppContext";
-import { useAuth } from "@/context/AuthContext";
-import type { GeoPoint } from "@/context/AppContext";
 
 const SOS_CATS = [
   { key: "gas_leak",        label: "Gas Leak",     icon: "🔴", color: "#F59E0B" },

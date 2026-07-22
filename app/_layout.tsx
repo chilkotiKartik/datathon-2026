@@ -11,14 +11,6 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useRef, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { View, StyleSheet, Animated, Text, Pressable } from "react-native";
-
-// KeyboardProvider requires native code unavailable in Expo Go — use a safe fallback
-let KeyboardProvider: React.ComponentType<{ children: React.ReactNode }>;
-try {
-  KeyboardProvider = require("react-native-keyboard-controller").KeyboardProvider;
-} catch {
-  KeyboardProvider = ({ children }) => <>{children}</>;
-}
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
 import { AppProvider, useApp } from "@/context/AppContext";
@@ -29,9 +21,16 @@ import { StatusBar } from "expo-status-bar";
 import { LogoAnimation } from "@/components/LogoAnimation";
 import Colors from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useSafeAreaInsets , SafeAreaProvider } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// KeyboardProvider requires native code unavailable in Expo Go — use a safe fallback
+let KeyboardProvider: React.ComponentType<{ children: React.ReactNode }>;
+try {
+  KeyboardProvider = require("react-native-keyboard-controller").KeyboardProvider;
+} catch {
+  KeyboardProvider = ({ children }) => <>{children}</>;
+}
 
 SplashScreen.preventAutoHideAsync();
 
