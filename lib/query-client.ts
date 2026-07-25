@@ -1,48 +1,15 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import Constants from "expo-constants";
+import { API_ORIGIN, WS_ORIGIN } from "./config";
+import { authFetch } from "./auth";
 
-function isBrowser(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    typeof window.location !== "undefined" &&
-    typeof window.location.origin === "string" &&
-    window.location.origin !== "" &&
-    window.location.origin !== "null"
-  );
-}
-
-/**
- * Gets the base URL for the Express API server
- */
+/** @deprecated use wsUrl() from lib/config. Kept for callers that expect a trailing /ws. */
 export function getWsUrl(): string {
-  if (isBrowser()) {
-    const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    return `${wsProtocol}//${window.location.host}/ws`;
-  }
-  if (process.env.EXPO_PUBLIC_DOMAIN) {
-    return `wss://${process.env.EXPO_PUBLIC_DOMAIN}/ws`;
-  }
-  return "ws://localhost:5000/ws";
+  return `${WS_ORIGIN}/ws`;
 }
 
+/** @deprecated use API_ORIGIN / apiUrl() from lib/config. Returns origin WITH trailing slash. */
 export function getApiUrl(): string {
-  if (isBrowser()) {
-    return window.location.origin + "/";
-  }
-
-  if (process.env.EXPO_PUBLIC_DOMAIN) {
-    return `https://${process.env.EXPO_PUBLIC_DOMAIN}/`;
-  }
-
-  const host =
-    (Constants.expoConfig as any)?.extra?.EXPO_PUBLIC_DOMAIN ??
-    (Constants.manifest as any)?.extra?.EXPO_PUBLIC_DOMAIN;
-
-  if (host) {
-    return `https://${host}/`;
-  }
-
-  return "http://localhost:5000/";
+  return `${API_ORIGIN}/`;
 }
 
 async function throwIfResNotOk(res: Response) {
@@ -57,10 +24,10 @@ export async function apiRequest(
   route: string,
   data?: unknown,
 ): Promise<Response> {
-  const baseUrl = getApiUrl();
-  const url = new URL(route, baseUrl);
+  const url = new URL(route, `${API_ORIGIN}/`);
 
-  const res = await globalThis.fetch(url.toString(), {
+  // authFetch attaches the Bearer token and silently refreshes on 401.
+  const res = await authFetch(url.toString(), {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
@@ -75,10 +42,9 @@ type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn =
   <T>({ on401 }: { on401: UnauthorizedBehavior }): QueryFunction<T> =>
   async ({ queryKey }) => {
-    const baseUrl = getApiUrl();
-    const url = new URL(queryKey.join("/") as string, baseUrl);
+    const url = new URL(queryKey.join("/") as string, `${API_ORIGIN}/`);
 
-    const res = await globalThis.fetch(url.toString());
+    const res = await authFetch(url.toString());
 
     if (on401 === "returnNull" && res.status === 401) {
       return null as T;

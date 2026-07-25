@@ -183,7 +183,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const setLang = (l: Lang) => {
     setLangState(l);
-    AsyncStorage.setItem("@sankalp_lang", l).catch(() => {});
+    AsyncStorage.setItem("@sahasra_lang", l).catch(() => {});
   };
 
   const t = (key: TranslationKey): string => TRANSLATIONS[lang][key] as string;

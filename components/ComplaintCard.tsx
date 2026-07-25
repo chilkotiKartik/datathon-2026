@@ -9,14 +9,24 @@ import {
 import { Feather } from "@expo/vector-icons";
 import {
   Complaint,
-  CATEGORY_META,
 } from "@/context/AppContext";
 import { PriorityBadge } from "./PriorityBadge";
 import { StatusBadge } from "./StatusBadge";
 import Colors from "@/constants/colors";
 
+const CATEGORY_META: Record<string, { label: string; icon: string; color: string }> = {
+  gas_leak:        { label: "Gas Leak",        icon: "alert-triangle", color: "#F59E0B" },
+  water_burst:     { label: "Water Burst",     icon: "droplet",        color: "#3B82F6" },
+  electric_hazard: { label: "Electric Hazard", icon: "zap",            color: "#EF4444" },
+  fire_risk:       { label: "Fire Risk",       icon: "alert-triangle", color: "#EF4444" },
+  road_accident:   { label: "Road Accident",   icon: "activity",       color: "#F59E0B" },
+  women_safety:    { label: "Women Safety",    icon: "shield",         color: "#8B5CF6" },
+  medical:         { label: "Medical",         icon: "heart",          color: "#22C55E" },
+  infrastructure:  { label: "Infrastructure",  icon: "settings",       color: "#6B7280" },
+};
+
 interface Props {
-  complaint: Complaint;
+  complaint: any;
   onPress?: () => void;
   onUpvote?: () => void;
 }

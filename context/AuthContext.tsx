@@ -1,141 +1,108 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getApiUrl } from "@/lib/query-client";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import { apiUrl } from "@/lib/config";
+import {
+  loadTokens, setTokens, clearTokens, getRefreshToken, authFetch,
+} from "@/lib/auth";
 
-export type UserRole = "citizen" | "worker" | "admin" | "super_admin";
+/** The 3 roles. Citizen + emergency_staff removed. */
+export type Role = "officer" | "station_head" | "super_admin";
 
-export interface AuthUser {
+export interface User {
   id: string;
+  badge: string;
   name: string;
+  role: Role;
+  rank: string;
+  stationId: string | null;
+  station?: string; // station name (for legacy intel screens); "" for super admin
+  district?: string; // station district (for legacy intel screens)
   phone: string;
-  role: UserRole;
-  district: string;
-  points?: number;
-  badges?: string[];
-  level?: number;
+  active: boolean;
 }
 
 interface AuthContextType {
-  user: AuthUser | null;
-  token: string | null;
+  user: User | null;
+  /** true while we resolve the persisted session on cold start. */
   isLoading: boolean;
-  login: (phone: string, pin: string) => Promise<void>;
-  register: (name: string, phone: string, pin: string, district: string) => Promise<void>;
+  login: (badge: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  isAdmin: boolean;
-  isSuperAdmin: boolean;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const TOKEN_KEY = "@sankalp_token";
-const USER_KEY = "@sankalp_user";
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Cold-start: load persisted tokens, then verify with the server (authFetch
+  // silently refreshes an expired access token). Never trust a cached role —
+  // /me returns the server-authoritative user.
   useEffect(() => {
     (async () => {
       try {
-        const [storedToken, storedUser] = await Promise.all([
-          AsyncStorage.getItem(TOKEN_KEY),
-          AsyncStorage.getItem(USER_KEY),
-        ]);
-        if (storedToken && storedUser) {
-          try {
-            const baseUrl = getApiUrl();
-            const validateRes = await fetch(new URL("/api/complaints", baseUrl).toString(), {
-              headers: { Authorization: `Bearer ${storedToken}` },
-            });
-            if (validateRes.ok || validateRes.status !== 401) {
-              setToken(storedToken);
-              setUser(JSON.parse(storedUser));
-            } else {
-              await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY]);
-            }
-          } catch {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
-          }
+        const { accessToken, refreshToken } = await loadTokens();
+        if (!accessToken && !refreshToken) {
+          setUser(null);
+          return;
         }
-      } catch {}
-      setIsLoading(false);
+        const res = await authFetch(apiUrl("/api/v2/auth/me"));
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user as User);
+        } else {
+          await clearTokens();
+          setUser(null);
+        }
+      } catch {
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }, []);
 
-  const login = async (phone: string, pin: string) => {
-    const baseUrl = getApiUrl();
-    const url = new URL("/api/auth/login", baseUrl);
-    let res: Response;
-    try {
-      res = await fetch(url.toString(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, pin }),
-      });
-    } catch (networkErr: any) {
-      throw new Error(`Network error — check your connection. (${networkErr?.message || "unreachable"})`);
-    }
-    if (!res.ok) {
-      let msg = `Login failed (${res.status})`;
-      try { const e = await res.json(); msg = e.message || msg; } catch {}
-      throw new Error(msg);
-    }
-    const data = await res.json();
-    setUser(data.user);
-    setToken(data.token);
-    await AsyncStorage.setItem(TOKEN_KEY, data.token);
-    await AsyncStorage.setItem(USER_KEY, JSON.stringify(data.user));
-  };
-
-  const register = async (name: string, phone: string, pin: string, district: string) => {
-    const baseUrl = getApiUrl();
-    const url = new URL("/api/auth/register", baseUrl);
-    const res = await fetch(url.toString(), {
+  const login = useCallback(async (badge: string, password: string) => {
+    const res = await fetch(apiUrl("/api/v2/auth/login"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, pin, district }),
+      body: JSON.stringify({ badge, password }),
     });
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ message: "Registration failed" }));
-      throw new Error(err.message || "Registration failed");
+      const err = await res.json().catch(() => ({ message: "Login failed" }));
+      throw new Error(err.message || "Invalid badge or password");
     }
     const data = await res.json();
-    setUser(data.user);
-    setToken(data.token);
-    await AsyncStorage.setItem(TOKEN_KEY, data.token);
-    await AsyncStorage.setItem(USER_KEY, JSON.stringify(data.user));
-  };
+    await setTokens(data.accessToken, data.refreshToken);
+    // Route off the SERVER-returned role, not a client-decoded JWT.
+    setUser(data.user as User);
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
+    const refreshToken = getRefreshToken();
     try {
-      if (token) {
-        const baseUrl = getApiUrl();
-        const url = new URL("/api/auth/logout", baseUrl);
-        await fetch(url.toString(), {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
-    } catch {}
+      await fetch(apiUrl("/api/v2/auth/logout"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+      });
+    } catch {
+      /* best-effort server invalidation */
+    }
+    await clearTokens();
     setUser(null);
-    setToken(null);
-    await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY]);
-  };
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    const res = await authFetch(apiUrl("/api/v2/auth/me"));
+    if (res.ok) {
+      const data = await res.json();
+      setUser(data.user as User);
+    }
+  }, []);
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      token,
-      isLoading,
-      login,
-      register,
-      logout,
-      isAdmin: user?.role === "admin" || user?.role === "super_admin",
-      isSuperAdmin: user?.role === "super_admin",
-    }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

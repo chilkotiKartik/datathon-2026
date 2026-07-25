@@ -1,22 +1,23 @@
-import { randomUUID } from "crypto";
+import { randomUUID, createHash } from "crypto";
 import { EventEmitter } from "events";
 
 // ── DEPARTMENT CONFIG ─────────────────────────────────────────────────────────
 export interface DeptConfig {
   id: string; name: string; nameHindi: string;
+  nameKannada?: string;
   icon: string; color: string; helpline: string;
   slaHours: number; categories: string[];
 }
 
 export const DEPARTMENTS: Record<string, DeptConfig> = {
-  pwd:    { id:"pwd",    name:"PWD — Public Works Dept.",       nameHindi:"लोक निर्माण विभाग",          icon:"🏗️", color:"#F59E0B", helpline:"1800-180-4244", slaHours:24, categories:["pothole","road_damage","other"] },
-  ulb:    { id:"ulb",    name:"ULB — Municipal Corporation",    nameHindi:"नगर पालिका / नगर निगम",       icon:"🗑️", color:"#10B981", helpline:"1533",          slaHours:48, categories:["garbage","drain","sewage"] },
-  jal:    { id:"jal",    name:"Jal Sansthan",                   nameHindi:"उत्तराखण्ड जल संस्थान",       icon:"💧", color:"#3B82F6", helpline:"1916",          slaHours:12, categories:["water"] },
-  upcl:   { id:"upcl",  name:"UPCL — Power Corporation",       nameHindi:"उत्तराखण्ड पावर कॉर्पोरेशन", icon:"⚡", color:"#8B5CF6", helpline:"1912",          slaHours:6,  categories:["electricity","streetlight","transformer"] },
-  forest: { id:"forest", name:"Forest Department",             nameHindi:"वन विभाग",                    icon:"🌳", color:"#166534", helpline:"1800-180-4288", slaHours:96, categories:["tree"] },
-  health: { id:"health", name:"Health & Family Welfare",       nameHindi:"स्वास्थ्य विभाग",             icon:"🏥", color:"#EF4444", helpline:"104",           slaHours:24, categories:["health_hazard"] },
-  usdma:  { id:"usdma",  name:"USDMA — Disaster Management",   nameHindi:"आपदा प्रबंधन प्राधिकरण",     icon:"🆘", color:"#DC2626", helpline:"1070",          slaHours:2,  categories:["disaster"] },
-  police: { id:"police", name:"Uttarakhand Police",            nameHindi:"उत्तराखण्ड पुलिस",            icon:"🚔", color:"#1E3A5F", helpline:"100",           slaHours:1,  categories:["noise"] },
+  pwd: { id: "pwd", name: "PWD — Public Works Dept.", nameHindi: "लोक निर्माण विभाग", icon: "🏗️", color: "#F59E0B", helpline: "1800-180-4244", slaHours: 24, categories: ["pothole", "road_damage", "other"] },
+  ulb: { id: "ulb", name: "ULB — Municipal Corporation", nameHindi: "नगर पालिका / नगर निगम", icon: "🗑️", color: "#10B981", helpline: "1533", slaHours: 48, categories: ["garbage", "drain", "sewage"] },
+  jal: { id: "jal", name: "Jal Sansthan", nameHindi: "उत्तराखण्ड जल संस्थान", icon: "💧", color: "#3B82F6", helpline: "1916", slaHours: 12, categories: ["water"] },
+  upcl: { id: "upcl", name: "UPCL — Power Corporation", nameHindi: "उत्तराखण्ड पावर कॉर्पोरेशन", icon: "⚡", color: "#8B5CF6", helpline: "1912", slaHours: 6, categories: ["electricity", "streetlight", "transformer"] },
+  forest: { id: "forest", name: "Forest Department", nameHindi: "वन विभाग", icon: "🌳", color: "#166534", helpline: "1800-180-4288", slaHours: 96, categories: ["tree"] },
+  health: { id: "health", name: "Health & Family Welfare", nameHindi: "स्वास्थ्य विभाग", icon: "🏥", color: "#EF4444", helpline: "104", slaHours: 24, categories: ["health_hazard"] },
+  usdma: { id: "usdma", name: "USDMA — Disaster Management", nameHindi: "आपदा प्रबंधन प्राधिकरण", icon: "🆘", color: "#DC2626", helpline: "1070", slaHours: 2, categories: ["disaster"] },
+  police: { id: "police", name: "Karnataka State Police", nameHindi: "कर्नाटक राज्य पुलिस", nameKannada: "ಕರ್ನಾಟಕ ರಾಜ್ಯ ಪೊಲೀಸ್", icon: "🚔", color: "#1E3A5F", helpline: "112", slaHours: 1, categories: ["noise", "crime"] },
 };
 
 export function getDeptIdForCategory(category: string): string {
@@ -107,22 +108,22 @@ export interface Complaint {
 // Department routing: AI maps complaint category → responsible government dept
 export function assignDepartment(category: string): string {
   const map: Record<string, string> = {
-    electricity:   "UPCL (Uttarakhand Power Corporation Ltd)",
-    transformer:   "UPCL (Uttarakhand Power Corporation Ltd)",
-    streetlight:   "UPCL (Uttarakhand Power Corporation Ltd)",
-    water:         "Jal Sansthan (Uttarakhand Jal Sansthan)",
-    drain:         "ULB (Urban Local Bodies / Nagar Palika)",
-    sewage:        "ULB (Urban Local Bodies / Nagar Palika)",
-    garbage:       "ULB (Urban Local Bodies / Nagar Palika)",
-    pothole:       "PWD (Public Works Department)",
-    road_damage:   "PWD (Public Works Department)",
-    tree:          "Forest Department",
-    noise:         "Uttarakhand Police",
-    health_hazard: "Health & Family Welfare Department",
-    disaster:      "USDMA (Disaster Management Authority)",
-    other:         "PWD (Public Works Department)",
+    electricity: "BESCOM (Bangalore Electricity Supply Company)",
+    transformer: "BESCOM (Bangalore Electricity Supply Company)",
+    streetlight: "BESCOM (Bangalore Electricity Supply Company)",
+    water: "BWSSB (Bangalore Water Supply Board)",
+    drain: "BBMP (Bruhat Bengaluru Mahanagara Palike)",
+    sewage: "BBMP (Bruhat Bengaluru Mahanagara Palike)",
+    garbage: "BBMP (Bruhat Bengaluru Mahanagara Palike)",
+    pothole: "PWD Karnataka (Public Works Dept)",
+    road_damage: "PWD Karnataka (Public Works Dept)",
+    tree: "Karnataka Forest Department",
+    noise: "Karnataka State Police (KSP)",
+    health_hazard: "Karnataka Health & Family Welfare",
+    disaster: "KSDMA (Karnataka Disaster Management)",
+    other: "PWD Karnataka (Public Works Dept)",
   };
-  return map[category] || "PWD (Public Works Department)";
+  return map[category] || "PWD Karnataka (Public Works Dept)";
 }
 
 export interface SOSAlert {
@@ -184,6 +185,10 @@ export interface Worker {
   status: "active" | "idle" | "on_leave";
   currentTask?: string;
   geo?: GeoPoint;
+  workingHours?: number;
+  nightShifts?: number;
+  activeCases?: number;
+  patrolFreq?: number;
 }
 
 export interface PoliceStation {
@@ -363,6 +368,10 @@ export interface AuditLog {
   actorName?: string;
   referenceId?: string;
   hash?: string;
+  prevHash?: string;
+  purpose?: string;
+  dpdpSection?: string;
+  district?: string;
 }
 
 export interface EmergencyService {
@@ -378,6 +387,86 @@ export interface EmergencyService {
   geo: { lat: number; lng: number };
 }
 
+export interface PoliceCase {
+  id: string;
+  firNumber: string;
+  title: string;
+  crimeType: string;
+  district: string;
+  station: string;
+  victimName: string;
+  suspectName: string;
+  vehiclePlate: string;
+  narrative: string;
+  moDetails: string;
+  status: "Open" | "In Progress" | "Flagged" | "Escalated" | "Authorized" | "Resolved";
+  createdAt: string;
+  updatedAt: string;
+  photoUrl?: string;
+  voiceNotes?: Array<{ text: string; timestamp: string; lang: "kn" | "en" }>;
+  taskPending?: boolean;
+}
+
+export interface FlaggedCase {
+  id: string;
+  caseId: string;
+  firNumber: string;
+  title: string;
+  flaggedBy: string;
+  reason: string;
+  status: "Pending" | "Escalated" | "Authorized" | "Resolved";
+  timestamp: string;
+  district: string;
+}
+
+export interface SuggestedLinkage {
+  id: string;
+  sourceCaseId: string;
+  targetCaseId: string;
+  similarityScore: number;
+  moMatchDetails: string;
+  status: "Suggested" | "Confirmed" | "Dismissed";
+  confirmedBy?: string;
+  timestamp: string;
+}
+
+export interface SPEscalation {
+  id: string;
+  caseId: string;
+  firNumber: string;
+  title: string;
+  analystId: string;
+  analystNotes: string;
+  status: "Pending SP Review" | "Authorized" | "Rejected";
+  timestamp: string;
+  district: string;
+}
+
+export interface PatrolDispatch {
+  id: string;
+  clusterId?: string;
+  caseId?: string;
+  spId: string;
+  assignedOfficerId: string;
+  assignedOfficerName: string;
+  district: string;
+  location: string;
+  status: "Pending" | "Accepted" | "Declined" | "Verified" | "False Alarm";
+  fieldNotes?: string;
+  timestamp: string;
+}
+
+export interface CrossDistrictRequest {
+  id: string;
+  caseId: string;
+  firNumber: string;
+  requestingOfficerId: string;
+  requestingDistrict: string;
+  targetDistrict: string;
+  status: "Pending" | "Approved" | "Denied";
+  timestamp: string;
+}
+
 export interface PredictiveAlert {
   category: string;
   district: string;
@@ -389,120 +478,120 @@ export interface PredictiveAlert {
 
 // ── UTTARAKHAND DISTRICTS & BLOCKS ────────────────────────────────────────────
 const DISTRICTS_DATA = [
-  { district: "Dehradun",         center: { lat: 30.3165, lng: 78.0322 } },
-  { district: "Haridwar",         center: { lat: 29.9457, lng: 78.1642 } },
-  { district: "Tehri Garhwal",    center: { lat: 30.3783, lng: 78.4831 } },
-  { district: "Pauri Garhwal",    center: { lat: 30.1455, lng: 78.7756 } },
-  { district: "Rudraprayag",      center: { lat: 30.2847, lng: 78.9816 } },
-  { district: "Chamoli",          center: { lat: 30.3960, lng: 79.3203 } },
-  { district: "Uttarkashi",       center: { lat: 30.7268, lng: 78.4350 } },
-  { district: "Pithoragarh",      center: { lat: 29.5826, lng: 80.2181 } },
-  { district: "Bageshwar",        center: { lat: 29.8380, lng: 79.7700 } },
-  { district: "Almora",           center: { lat: 29.5971, lng: 79.6537 } },
-  { district: "Champawat",        center: { lat: 29.3333, lng: 80.0905 } },
-  { district: "Nainital",         center: { lat: 29.3803, lng: 79.4636 } },
-  { district: "Udham Singh Nagar",center: { lat: 28.9935, lng: 79.4024 } },
+  { district: "Dehradun", center: { lat: 30.3165, lng: 78.0322 } },
+  { district: "Haridwar", center: { lat: 29.9457, lng: 78.1642 } },
+  { district: "Tehri Garhwal", center: { lat: 30.3783, lng: 78.4831 } },
+  { district: "Pauri Garhwal", center: { lat: 30.1455, lng: 78.7756 } },
+  { district: "Rudraprayag", center: { lat: 30.2847, lng: 78.9816 } },
+  { district: "Chamoli", center: { lat: 30.3960, lng: 79.3203 } },
+  { district: "Uttarkashi", center: { lat: 30.7268, lng: 78.4350 } },
+  { district: "Pithoragarh", center: { lat: 29.5826, lng: 80.2181 } },
+  { district: "Bageshwar", center: { lat: 29.8380, lng: 79.7700 } },
+  { district: "Almora", center: { lat: 29.5971, lng: 79.6537 } },
+  { district: "Champawat", center: { lat: 29.3333, lng: 80.0905 } },
+  { district: "Nainital", center: { lat: 29.3803, lng: 79.4636 } },
+  { district: "Udham Singh Nagar", center: { lat: 28.9935, lng: 79.4024 } },
 ];
 
 const WARDS_DATA: { name: string; number: number; area: string; district: string; center: GeoPoint; pop: number }[] = [
   // Dehradun
-  { name: "Sahastradhara Block",    number: 1,  area: "Dehradun Urban",   district: "Dehradun",         center: { lat: 30.3760, lng: 78.0882 }, pop: 95000  },
-  { name: "Raipur Block",           number: 2,  area: "Dehradun East",    district: "Dehradun",         center: { lat: 30.2900, lng: 78.0620 }, pop: 72000  },
-  { name: "Vikasnagar Block",       number: 3,  area: "Dehradun West",    district: "Dehradun",         center: { lat: 30.4490, lng: 77.7750 }, pop: 58000  },
+  { name: "Sahastradhara Block", number: 1, area: "Dehradun Urban", district: "Dehradun", center: { lat: 30.3760, lng: 78.0882 }, pop: 95000 },
+  { name: "Raipur Block", number: 2, area: "Dehradun East", district: "Dehradun", center: { lat: 30.2900, lng: 78.0620 }, pop: 72000 },
+  { name: "Vikasnagar Block", number: 3, area: "Dehradun West", district: "Dehradun", center: { lat: 30.4490, lng: 77.7750 }, pop: 58000 },
   // Haridwar
-  { name: "Haridwar Block",         number: 4,  area: "Haridwar Urban",   district: "Haridwar",         center: { lat: 29.9457, lng: 78.1642 }, pop: 310000 },
-  { name: "Roorkee Block",          number: 5,  area: "Haridwar East",    district: "Haridwar",         center: { lat: 29.8542, lng: 77.8880 }, pop: 185000 },
-  { name: "Bhagwanpur Block",       number: 6,  area: "Haridwar South",   district: "Haridwar",         center: { lat: 29.8100, lng: 78.1200 }, pop: 64000  },
+  { name: "Haridwar Block", number: 4, area: "Haridwar Urban", district: "Haridwar", center: { lat: 29.9457, lng: 78.1642 }, pop: 310000 },
+  { name: "Roorkee Block", number: 5, area: "Haridwar East", district: "Haridwar", center: { lat: 29.8542, lng: 77.8880 }, pop: 185000 },
+  { name: "Bhagwanpur Block", number: 6, area: "Haridwar South", district: "Haridwar", center: { lat: 29.8100, lng: 78.1200 }, pop: 64000 },
   // Tehri Garhwal
-  { name: "New Tehri Block",        number: 7,  area: "Tehri Urban",      district: "Tehri Garhwal",    center: { lat: 30.3783, lng: 78.4831 }, pop: 28000  },
-  { name: "Narendra Nagar Block",   number: 8,  area: "Tehri South",      district: "Tehri Garhwal",    center: { lat: 30.1650, lng: 78.2870 }, pop: 35000  },
+  { name: "New Tehri Block", number: 7, area: "Tehri Urban", district: "Tehri Garhwal", center: { lat: 30.3783, lng: 78.4831 }, pop: 28000 },
+  { name: "Narendra Nagar Block", number: 8, area: "Tehri South", district: "Tehri Garhwal", center: { lat: 30.1650, lng: 78.2870 }, pop: 35000 },
   // Pauri Garhwal
-  { name: "Pauri Block",            number: 9,  area: "Pauri Urban",      district: "Pauri Garhwal",    center: { lat: 30.1455, lng: 78.7756 }, pop: 45000  },
-  { name: "Kotdwar Block",          number: 10, area: "Pauri South",      district: "Pauri Garhwal",    center: { lat: 29.7476, lng: 78.5247 }, pop: 62000  },
+  { name: "Pauri Block", number: 9, area: "Pauri Urban", district: "Pauri Garhwal", center: { lat: 30.1455, lng: 78.7756 }, pop: 45000 },
+  { name: "Kotdwar Block", number: 10, area: "Pauri South", district: "Pauri Garhwal", center: { lat: 29.7476, lng: 78.5247 }, pop: 62000 },
   // Rudraprayag
-  { name: "Rudraprayag Block",      number: 11, area: "Rudraprayag Urban", district: "Rudraprayag",      center: { lat: 30.2847, lng: 78.9816 }, pop: 23000  },
-  { name: "Agastmuni Block",        number: 12, area: "Rudraprayag North", district: "Rudraprayag",      center: { lat: 30.4127, lng: 79.0760 }, pop: 18000  },
+  { name: "Rudraprayag Block", number: 11, area: "Rudraprayag Urban", district: "Rudraprayag", center: { lat: 30.2847, lng: 78.9816 }, pop: 23000 },
+  { name: "Agastmuni Block", number: 12, area: "Rudraprayag North", district: "Rudraprayag", center: { lat: 30.4127, lng: 79.0760 }, pop: 18000 },
   // Chamoli
-  { name: "Gopeshwar Block",        number: 13, area: "Chamoli Urban",     district: "Chamoli",          center: { lat: 30.3960, lng: 79.3203 }, pop: 21000  },
-  { name: "Joshimath Block",        number: 14, area: "Chamoli North",     district: "Chamoli",          center: { lat: 30.5596, lng: 79.5668 }, pop: 17000  },
+  { name: "Gopeshwar Block", number: 13, area: "Chamoli Urban", district: "Chamoli", center: { lat: 30.3960, lng: 79.3203 }, pop: 21000 },
+  { name: "Joshimath Block", number: 14, area: "Chamoli North", district: "Chamoli", center: { lat: 30.5596, lng: 79.5668 }, pop: 17000 },
   // Uttarkashi
-  { name: "Uttarkashi Block",       number: 15, area: "Uttarkashi Urban",  district: "Uttarkashi",       center: { lat: 30.7268, lng: 78.4350 }, pop: 32000  },
-  { name: "Bhatwari Block",         number: 16, area: "Uttarkashi North",  district: "Uttarkashi",       center: { lat: 30.8780, lng: 78.5010 }, pop: 19000  },
+  { name: "Uttarkashi Block", number: 15, area: "Uttarkashi Urban", district: "Uttarkashi", center: { lat: 30.7268, lng: 78.4350 }, pop: 32000 },
+  { name: "Bhatwari Block", number: 16, area: "Uttarkashi North", district: "Uttarkashi", center: { lat: 30.8780, lng: 78.5010 }, pop: 19000 },
   // Pithoragarh
-  { name: "Pithoragarh Block",      number: 17, area: "Pithoragarh Urban", district: "Pithoragarh",      center: { lat: 29.5826, lng: 80.2181 }, pop: 55000  },
-  { name: "Dharchula Block",        number: 18, area: "Pithoragarh North", district: "Pithoragarh",      center: { lat: 29.8530, lng: 80.5290 }, pop: 29000  },
+  { name: "Pithoragarh Block", number: 17, area: "Pithoragarh Urban", district: "Pithoragarh", center: { lat: 29.5826, lng: 80.2181 }, pop: 55000 },
+  { name: "Dharchula Block", number: 18, area: "Pithoragarh North", district: "Pithoragarh", center: { lat: 29.8530, lng: 80.5290 }, pop: 29000 },
   // Bageshwar
-  { name: "Bageshwar Block",        number: 19, area: "Bageshwar Urban",   district: "Bageshwar",        center: { lat: 29.8380, lng: 79.7700 }, pop: 34000  },
-  { name: "Kapkot Block",           number: 20, area: "Bageshwar North",   district: "Bageshwar",        center: { lat: 30.0200, lng: 79.8900 }, pop: 22000  },
+  { name: "Bageshwar Block", number: 19, area: "Bageshwar Urban", district: "Bageshwar", center: { lat: 29.8380, lng: 79.7700 }, pop: 34000 },
+  { name: "Kapkot Block", number: 20, area: "Bageshwar North", district: "Bageshwar", center: { lat: 30.0200, lng: 79.8900 }, pop: 22000 },
   // Almora
-  { name: "Almora Block",           number: 21, area: "Almora Urban",      district: "Almora",           center: { lat: 29.5971, lng: 79.6537 }, pop: 48000  },
-  { name: "Ranikhet Block",         number: 22, area: "Almora West",       district: "Almora",           center: { lat: 29.6407, lng: 79.4374 }, pop: 32000  },
+  { name: "Almora Block", number: 21, area: "Almora Urban", district: "Almora", center: { lat: 29.5971, lng: 79.6537 }, pop: 48000 },
+  { name: "Ranikhet Block", number: 22, area: "Almora West", district: "Almora", center: { lat: 29.6407, lng: 79.4374 }, pop: 32000 },
   // Champawat
-  { name: "Champawat Block",        number: 23, area: "Champawat Urban",   district: "Champawat",        center: { lat: 29.3333, lng: 80.0905 }, pop: 38000  },
-  { name: "Lohaghat Block",         number: 24, area: "Champawat South",   district: "Champawat",        center: { lat: 29.4136, lng: 80.0620 }, pop: 26000  },
-  { name: "Tanakpur Block",         number: 25, area: "Champawat East",    district: "Champawat",        center: { lat: 29.0770, lng: 80.1110 }, pop: 42000  },
+  { name: "Champawat Block", number: 23, area: "Champawat Urban", district: "Champawat", center: { lat: 29.3333, lng: 80.0905 }, pop: 38000 },
+  { name: "Lohaghat Block", number: 24, area: "Champawat South", district: "Champawat", center: { lat: 29.4136, lng: 80.0620 }, pop: 26000 },
+  { name: "Tanakpur Block", number: 25, area: "Champawat East", district: "Champawat", center: { lat: 29.0770, lng: 80.1110 }, pop: 42000 },
   // Nainital
-  { name: "Nainital Block",         number: 26, area: "Nainital Urban",    district: "Nainital",         center: { lat: 29.3803, lng: 79.4636 }, pop: 65000  },
-  { name: "Haldwani Block",         number: 27, area: "Nainital South",    district: "Nainital",         center: { lat: 29.2183, lng: 79.5129 }, pop: 250000 },
-  { name: "Bhimtal Block",          number: 28, area: "Nainital West",     district: "Nainital",         center: { lat: 29.3500, lng: 79.5600 }, pop: 38000  },
+  { name: "Nainital Block", number: 26, area: "Nainital Urban", district: "Nainital", center: { lat: 29.3803, lng: 79.4636 }, pop: 65000 },
+  { name: "Haldwani Block", number: 27, area: "Nainital South", district: "Nainital", center: { lat: 29.2183, lng: 79.5129 }, pop: 250000 },
+  { name: "Bhimtal Block", number: 28, area: "Nainital West", district: "Nainital", center: { lat: 29.3500, lng: 79.5600 }, pop: 38000 },
   // Udham Singh Nagar
-  { name: "Rudrapur Block",         number: 29, area: "US Nagar Urban",    district: "Udham Singh Nagar",center: { lat: 28.9835, lng: 79.4026 }, pop: 290000 },
-  { name: "Kashipur Block",         number: 30, area: "US Nagar West",     district: "Udham Singh Nagar",center: { lat: 29.2100, lng: 78.9600 }, pop: 120000 },
-  { name: "Khatima Block",          number: 31, area: "US Nagar South",    district: "Udham Singh Nagar",center: { lat: 28.9250, lng: 79.9650 }, pop: 85000  },
-  { name: "Sitarganj Block",        number: 32, area: "US Nagar East",     district: "Udham Singh Nagar",center: { lat: 28.9280, lng: 79.7024 }, pop: 95000  },
+  { name: "Rudrapur Block", number: 29, area: "US Nagar Urban", district: "Udham Singh Nagar", center: { lat: 28.9835, lng: 79.4026 }, pop: 290000 },
+  { name: "Kashipur Block", number: 30, area: "US Nagar West", district: "Udham Singh Nagar", center: { lat: 29.2100, lng: 78.9600 }, pop: 120000 },
+  { name: "Khatima Block", number: 31, area: "US Nagar South", district: "Udham Singh Nagar", center: { lat: 28.9250, lng: 79.9650 }, pop: 85000 },
+  { name: "Sitarganj Block", number: 32, area: "US Nagar East", district: "Udham Singh Nagar", center: { lat: 28.9280, lng: 79.7024 }, pop: 95000 },
 ];
 
 const POLICE_STATIONS: PoliceStation[] = [
   // Dehradun
-  { id: "ps1",  name: "Dehradun Kotwali PS",     address: "Kotwali Area, Dehradun 248001",            phone: "0135-2712050", geo: { lat: 30.3165, lng: 78.0322 }, ward: "Sahastradhara Block",  district: "Dehradun" },
-  { id: "ps2",  name: "Rajpur Road PS",           address: "Rajpur Road, Dehradun 248001",             phone: "0135-2743200", geo: { lat: 30.3450, lng: 78.0630 }, ward: "Raipur Block",         district: "Dehradun" },
-  { id: "ps3",  name: "Patel Nagar PS",           address: "Patel Nagar, Dehradun 248001",             phone: "0135-2653200", geo: { lat: 30.2940, lng: 78.0240 }, ward: "Sahastradhara Block",  district: "Dehradun" },
-  { id: "ps4",  name: "Vikasnagar PS",            address: "Vikasnagar, Dehradun 248198",              phone: "01360-263055", geo: { lat: 30.4490, lng: 77.7750 }, ward: "Vikasnagar Block",     district: "Dehradun" },
+  { id: "ps1", name: "Dehradun Kotwali PS", address: "Kotwali Area, Dehradun 248001", phone: "0135-2712050", geo: { lat: 30.3165, lng: 78.0322 }, ward: "Sahastradhara Block", district: "Dehradun" },
+  { id: "ps2", name: "Rajpur Road PS", address: "Rajpur Road, Dehradun 248001", phone: "0135-2743200", geo: { lat: 30.3450, lng: 78.0630 }, ward: "Raipur Block", district: "Dehradun" },
+  { id: "ps3", name: "Patel Nagar PS", address: "Patel Nagar, Dehradun 248001", phone: "0135-2653200", geo: { lat: 30.2940, lng: 78.0240 }, ward: "Sahastradhara Block", district: "Dehradun" },
+  { id: "ps4", name: "Vikasnagar PS", address: "Vikasnagar, Dehradun 248198", phone: "01360-263055", geo: { lat: 30.4490, lng: 77.7750 }, ward: "Vikasnagar Block", district: "Dehradun" },
   // Haridwar
-  { id: "ps5",  name: "Haridwar Kotwali PS",      address: "Haridwar City, Haridwar 249401",           phone: "01334-225020", geo: { lat: 29.9457, lng: 78.1642 }, ward: "Haridwar Block",       district: "Haridwar" },
-  { id: "ps6",  name: "Roorkee PS",               address: "Civil Lines, Roorkee 247667",              phone: "01332-272040", geo: { lat: 29.8542, lng: 77.8880 }, ward: "Roorkee Block",        district: "Haridwar" },
-  { id: "ps7",  name: "Bhagwanpur PS",            address: "Bhagwanpur, Haridwar 247661",              phone: "01334-231032", geo: { lat: 29.8100, lng: 78.1200 }, ward: "Bhagwanpur Block",     district: "Haridwar" },
+  { id: "ps5", name: "Haridwar Kotwali PS", address: "Haridwar City, Haridwar 249401", phone: "01334-225020", geo: { lat: 29.9457, lng: 78.1642 }, ward: "Haridwar Block", district: "Haridwar" },
+  { id: "ps6", name: "Roorkee PS", address: "Civil Lines, Roorkee 247667", phone: "01332-272040", geo: { lat: 29.8542, lng: 77.8880 }, ward: "Roorkee Block", district: "Haridwar" },
+  { id: "ps7", name: "Bhagwanpur PS", address: "Bhagwanpur, Haridwar 247661", phone: "01334-231032", geo: { lat: 29.8100, lng: 78.1200 }, ward: "Bhagwanpur Block", district: "Haridwar" },
   // Tehri Garhwal
-  { id: "ps8",  name: "New Tehri PS",             address: "New Tehri Town, Tehri 249001",             phone: "01376-233400", geo: { lat: 30.3783, lng: 78.4831 }, ward: "New Tehri Block",      district: "Tehri Garhwal" },
-  { id: "ps9",  name: "Narendra Nagar PS",        address: "Narendra Nagar, Tehri 249175",             phone: "01376-222030", geo: { lat: 30.1650, lng: 78.2870 }, ward: "Narendra Nagar Block", district: "Tehri Garhwal" },
+  { id: "ps8", name: "New Tehri PS", address: "New Tehri Town, Tehri 249001", phone: "01376-233400", geo: { lat: 30.3783, lng: 78.4831 }, ward: "New Tehri Block", district: "Tehri Garhwal" },
+  { id: "ps9", name: "Narendra Nagar PS", address: "Narendra Nagar, Tehri 249175", phone: "01376-222030", geo: { lat: 30.1650, lng: 78.2870 }, ward: "Narendra Nagar Block", district: "Tehri Garhwal" },
   // Pauri Garhwal
-  { id: "ps10", name: "Pauri PS",                 address: "Pauri Town, Pauri Garhwal 246001",         phone: "01368-222020", geo: { lat: 30.1455, lng: 78.7756 }, ward: "Pauri Block",          district: "Pauri Garhwal" },
-  { id: "ps11", name: "Kotdwar PS",               address: "Kotdwar Town, Pauri Garhwal 246149",       phone: "01382-222050", geo: { lat: 29.7476, lng: 78.5247 }, ward: "Kotdwar Block",        district: "Pauri Garhwal" },
+  { id: "ps10", name: "Pauri PS", address: "Pauri Town, Pauri Garhwal 246001", phone: "01368-222020", geo: { lat: 30.1455, lng: 78.7756 }, ward: "Pauri Block", district: "Pauri Garhwal" },
+  { id: "ps11", name: "Kotdwar PS", address: "Kotdwar Town, Pauri Garhwal 246149", phone: "01382-222050", geo: { lat: 29.7476, lng: 78.5247 }, ward: "Kotdwar Block", district: "Pauri Garhwal" },
   // Rudraprayag
-  { id: "ps12", name: "Rudraprayag PS",           address: "Rudraprayag Town 246171",                  phone: "01364-233500", geo: { lat: 30.2847, lng: 78.9816 }, ward: "Rudraprayag Block",    district: "Rudraprayag" },
+  { id: "ps12", name: "Rudraprayag PS", address: "Rudraprayag Town 246171", phone: "01364-233500", geo: { lat: 30.2847, lng: 78.9816 }, ward: "Rudraprayag Block", district: "Rudraprayag" },
   // Chamoli
-  { id: "ps13", name: "Gopeshwar PS",             address: "Gopeshwar, Chamoli 246401",                phone: "01372-252100", geo: { lat: 30.3960, lng: 79.3203 }, ward: "Gopeshwar Block",      district: "Chamoli" },
-  { id: "ps14", name: "Joshimath PS",             address: "Joshimath, Chamoli 246443",                phone: "01389-222500", geo: { lat: 30.5596, lng: 79.5668 }, ward: "Joshimath Block",      district: "Chamoli" },
+  { id: "ps13", name: "Gopeshwar PS", address: "Gopeshwar, Chamoli 246401", phone: "01372-252100", geo: { lat: 30.3960, lng: 79.3203 }, ward: "Gopeshwar Block", district: "Chamoli" },
+  { id: "ps14", name: "Joshimath PS", address: "Joshimath, Chamoli 246443", phone: "01389-222500", geo: { lat: 30.5596, lng: 79.5668 }, ward: "Joshimath Block", district: "Chamoli" },
   // Uttarkashi
-  { id: "ps15", name: "Uttarkashi PS",            address: "Uttarkashi Town 249193",                   phone: "01374-222020", geo: { lat: 30.7268, lng: 78.4350 }, ward: "Uttarkashi Block",     district: "Uttarkashi" },
+  { id: "ps15", name: "Uttarkashi PS", address: "Uttarkashi Town 249193", phone: "01374-222020", geo: { lat: 30.7268, lng: 78.4350 }, ward: "Uttarkashi Block", district: "Uttarkashi" },
   // Pithoragarh
-  { id: "ps16", name: "Pithoragarh PS",           address: "Pithoragarh Town 262501",                  phone: "05964-225032", geo: { lat: 29.5826, lng: 80.2181 }, ward: "Pithoragarh Block",    district: "Pithoragarh" },
-  { id: "ps17", name: "Dharchula PS",             address: "Dharchula, Pithoragarh 262552",            phone: "05966-226018", geo: { lat: 29.8530, lng: 80.5290 }, ward: "Dharchula Block",      district: "Pithoragarh" },
+  { id: "ps16", name: "Pithoragarh PS", address: "Pithoragarh Town 262501", phone: "05964-225032", geo: { lat: 29.5826, lng: 80.2181 }, ward: "Pithoragarh Block", district: "Pithoragarh" },
+  { id: "ps17", name: "Dharchula PS", address: "Dharchula, Pithoragarh 262552", phone: "05966-226018", geo: { lat: 29.8530, lng: 80.5290 }, ward: "Dharchula Block", district: "Pithoragarh" },
   // Bageshwar
-  { id: "ps18", name: "Bageshwar PS",             address: "Bageshwar Town 263642",                    phone: "05963-220050", geo: { lat: 29.8380, lng: 79.7700 }, ward: "Bageshwar Block",      district: "Bageshwar" },
+  { id: "ps18", name: "Bageshwar PS", address: "Bageshwar Town 263642", phone: "05963-220050", geo: { lat: 29.8380, lng: 79.7700 }, ward: "Bageshwar Block", district: "Bageshwar" },
   // Almora
-  { id: "ps19", name: "Almora Kotwali PS",        address: "Almora Town 263601",                       phone: "05962-230070", geo: { lat: 29.5971, lng: 79.6537 }, ward: "Almora Block",         district: "Almora" },
-  { id: "ps20", name: "Ranikhet PS",              address: "Ranikhet Cantonment, Almora 263645",       phone: "05966-220100", geo: { lat: 29.6407, lng: 79.4374 }, ward: "Ranikhet Block",       district: "Almora" },
+  { id: "ps19", name: "Almora Kotwali PS", address: "Almora Town 263601", phone: "05962-230070", geo: { lat: 29.5971, lng: 79.6537 }, ward: "Almora Block", district: "Almora" },
+  { id: "ps20", name: "Ranikhet PS", address: "Ranikhet Cantonment, Almora 263645", phone: "05966-220100", geo: { lat: 29.6407, lng: 79.4374 }, ward: "Ranikhet Block", district: "Almora" },
   // Champawat
-  { id: "ps21", name: "Champawat PS",             address: "Champawat Town 262523",                    phone: "05965-230025", geo: { lat: 29.3333, lng: 80.0905 }, ward: "Champawat Block",      district: "Champawat" },
-  { id: "ps22", name: "Lohaghat PS",              address: "Lohaghat, Champawat 262524",               phone: "05965-231050", geo: { lat: 29.4136, lng: 80.0620 }, ward: "Lohaghat Block",       district: "Champawat" },
-  { id: "ps23", name: "Tanakpur PS",              address: "Tanakpur, Champawat 262309",               phone: "05943-252018", geo: { lat: 29.0770, lng: 80.1110 }, ward: "Tanakpur Block",       district: "Champawat" },
+  { id: "ps21", name: "Champawat PS", address: "Champawat Town 262523", phone: "05965-230025", geo: { lat: 29.3333, lng: 80.0905 }, ward: "Champawat Block", district: "Champawat" },
+  { id: "ps22", name: "Lohaghat PS", address: "Lohaghat, Champawat 262524", phone: "05965-231050", geo: { lat: 29.4136, lng: 80.0620 }, ward: "Lohaghat Block", district: "Champawat" },
+  { id: "ps23", name: "Tanakpur PS", address: "Tanakpur, Champawat 262309", phone: "05943-252018", geo: { lat: 29.0770, lng: 80.1110 }, ward: "Tanakpur Block", district: "Champawat" },
   // Nainital
-  { id: "ps24", name: "Nainital Kotwali PS",      address: "Mall Road, Nainital 263002",               phone: "05942-235036", geo: { lat: 29.3803, lng: 79.4636 }, ward: "Nainital Block",       district: "Nainital" },
-  { id: "ps25", name: "Haldwani PS",              address: "Haldwani Town, Nainital 263139",           phone: "05946-224040", geo: { lat: 29.2183, lng: 79.5129 }, ward: "Haldwani Block",       district: "Nainital" },
+  { id: "ps24", name: "Nainital Kotwali PS", address: "Mall Road, Nainital 263002", phone: "05942-235036", geo: { lat: 29.3803, lng: 79.4636 }, ward: "Nainital Block", district: "Nainital" },
+  { id: "ps25", name: "Haldwani PS", address: "Haldwani Town, Nainital 263139", phone: "05946-224040", geo: { lat: 29.2183, lng: 79.5129 }, ward: "Haldwani Block", district: "Nainital" },
   // Udham Singh Nagar
-  { id: "ps26", name: "Rudrapur Kotwali PS",      address: "Civil Lines, Rudrapur 263153",             phone: "05944-240050", geo: { lat: 28.9835, lng: 79.4026 }, ward: "Rudrapur Block",       district: "Udham Singh Nagar" },
-  { id: "ps27", name: "Kashipur PS",              address: "Kashipur Town 244713",                     phone: "05947-271600", geo: { lat: 29.2100, lng: 78.9600 }, ward: "Kashipur Block",       district: "Udham Singh Nagar" },
-  { id: "ps28", name: "Khatima PS",               address: "Khatima, US Nagar 262308",                 phone: "05943-254020", geo: { lat: 28.9250, lng: 79.9650 }, ward: "Khatima Block",        district: "Udham Singh Nagar" },
+  { id: "ps26", name: "Rudrapur Kotwali PS", address: "Civil Lines, Rudrapur 263153", phone: "05944-240050", geo: { lat: 28.9835, lng: 79.4026 }, ward: "Rudrapur Block", district: "Udham Singh Nagar" },
+  { id: "ps27", name: "Kashipur PS", address: "Kashipur Town 244713", phone: "05947-271600", geo: { lat: 29.2100, lng: 78.9600 }, ward: "Kashipur Block", district: "Udham Singh Nagar" },
+  { id: "ps28", name: "Khatima PS", address: "Khatima, US Nagar 262308", phone: "05943-254020", geo: { lat: 28.9250, lng: 79.9650 }, ward: "Khatima Block", district: "Udham Singh Nagar" },
 ];
 
 const WORKER_NAMES = [
-  "Ramesh Negi","Gopal Bisht","Pushpa Rawat","Suresh Rana","Anita Devi",
-  "Vikram Panwar","Meena Mehta","Mohan Joshi","Kavita Bora","Deepak Kunwar",
-  "Sunita Adhikari","Ravi Bhandari","Pooja Mahar","Arun Rikhola","Geeta Semwal",
-  "Sanjay Nautiyal","Rekha Chauhan","Lokesh Dobhal","Shashi Kala","Prakash Tamta",
-  "Dinesh Ghildiyal","Hema Kandpal","Bijendra Singh","Lalita Pant","Naresh Tolia",
-  "Seema Lingwal","Bhupesh Maithani","Kamla Sajwan","Trilok Rana","Usha Bhatt",
+  "Ramesh Negi", "Gopal Bisht", "Pushpa Rawat", "Suresh Rana", "Anita Devi",
+  "Vikram Panwar", "Meena Mehta", "Mohan Joshi", "Kavita Bora", "Deepak Kunwar",
+  "Sunita Adhikari", "Ravi Bhandari", "Pooja Mahar", "Arun Rikhola", "Geeta Semwal",
+  "Sanjay Nautiyal", "Rekha Chauhan", "Lokesh Dobhal", "Shashi Kala", "Prakash Tamta",
+  "Dinesh Ghildiyal", "Hema Kandpal", "Bijendra Singh", "Lalita Pant", "Naresh Tolia",
+  "Seema Lingwal", "Bhupesh Maithani", "Kamla Sajwan", "Trilok Rana", "Usha Bhatt",
 ];
 
 const COMPLAINT_DESCS: Record<ComplaintCategory, string[]> = {
@@ -696,50 +785,60 @@ class AppStorage {
   private auditLogs: AuditLog[] = [];
   private emergencyServices: EmergencyService[] = [
     // Dehradun
-    { id: "es1",  type: "hospital",  name: "Doon Medical College & Hospital",    district: "Dehradun",          address: "New Road, Dehradun",                    phone: "0135-2520411", beds: 500, available: true,  geo: { lat: 30.3200, lng: 78.0400 } },
-    { id: "es2",  type: "hospital",  name: "Mahant Indiresh Hospital",            district: "Dehradun",          address: "Patel Nagar, Dehradun",                 phone: "0135-2520800", beds: 350, available: true,  geo: { lat: 30.3150, lng: 78.0350 } },
-    { id: "es3",  type: "fire",      name: "Dehradun Fire Station",               district: "Dehradun",          address: "Subhash Road, Dehradun",                phone: "0135-2652222",              available: true,  geo: { lat: 30.3165, lng: 78.0322 } },
-    { id: "es4",  type: "ambulance", name: "108 Emergency Dehradun Hub",          district: "Dehradun",          address: "AIIMS Rishikesh Road, Dehradun",        phone: "108",                        available: true,  geo: { lat: 30.3100, lng: 78.0100 } },
-    { id: "es5",  type: "disaster",  name: "SDRF Dehradun Command",               district: "Dehradun",          address: "Govind Garh, Dehradun",                 phone: "0135-2710334",              available: true,  geo: { lat: 30.3300, lng: 78.0550 } },
+    { id: "es1", type: "hospital", name: "Doon Medical College & Hospital", district: "Dehradun", address: "New Road, Dehradun", phone: "0135-2520411", beds: 500, available: true, geo: { lat: 30.3200, lng: 78.0400 } },
+    { id: "es2", type: "hospital", name: "Mahant Indiresh Hospital", district: "Dehradun", address: "Patel Nagar, Dehradun", phone: "0135-2520800", beds: 350, available: true, geo: { lat: 30.3150, lng: 78.0350 } },
+    { id: "es3", type: "fire", name: "Dehradun Fire Station", district: "Dehradun", address: "Subhash Road, Dehradun", phone: "0135-2652222", available: true, geo: { lat: 30.3165, lng: 78.0322 } },
+    { id: "es4", type: "ambulance", name: "108 Emergency Dehradun Hub", district: "Dehradun", address: "AIIMS Rishikesh Road, Dehradun", phone: "108", available: true, geo: { lat: 30.3100, lng: 78.0100 } },
+    { id: "es5", type: "disaster", name: "SDRF Dehradun Command", district: "Dehradun", address: "Govind Garh, Dehradun", phone: "0135-2710334", available: true, geo: { lat: 30.3300, lng: 78.0550 } },
     // Haridwar
-    { id: "es6",  type: "hospital",  name: "District Hospital Haridwar",          district: "Haridwar",          address: "Jwalapur Road, Haridwar",               phone: "01334-226800", beds: 400, available: true,  geo: { lat: 29.9457, lng: 78.1642 } },
-    { id: "es7",  type: "fire",      name: "Haridwar Fire & Rescue",              district: "Haridwar",          address: "Ranipur Mod, Haridwar",                 phone: "01334-220101",              available: true,  geo: { lat: 29.9500, lng: 78.1700 } },
-    { id: "es8",  type: "ambulance", name: "108 Emergency Haridwar",              district: "Haridwar",          address: "Rishikesh Bypass, Haridwar",            phone: "108",                        available: true,  geo: { lat: 29.9400, lng: 78.1500 } },
+    { id: "es6", type: "hospital", name: "District Hospital Haridwar", district: "Haridwar", address: "Jwalapur Road, Haridwar", phone: "01334-226800", beds: 400, available: true, geo: { lat: 29.9457, lng: 78.1642 } },
+    { id: "es7", type: "fire", name: "Haridwar Fire & Rescue", district: "Haridwar", address: "Ranipur Mod, Haridwar", phone: "01334-220101", available: true, geo: { lat: 29.9500, lng: 78.1700 } },
+    { id: "es8", type: "ambulance", name: "108 Emergency Haridwar", district: "Haridwar", address: "Rishikesh Bypass, Haridwar", phone: "108", available: true, geo: { lat: 29.9400, lng: 78.1500 } },
     // Nainital
-    { id: "es9",  type: "hospital",  name: "BG Sardar Ballabh Pant Govt Hospital",district: "Nainital",          address: "Mall Road, Nainital",                   phone: "05942-235812", beds: 250, available: true,  geo: { lat: 29.3803, lng: 79.4636 } },
-    { id: "es10", type: "fire",      name: "Nainital Fire Station",               district: "Nainital",          address: "Malital, Nainital",                     phone: "05942-235100",              available: true,  geo: { lat: 29.3800, lng: 79.4600 } },
-    { id: "es11", type: "ambulance", name: "108 Emergency Nainital",              district: "Nainital",          address: "Mallital, Nainital",                    phone: "108",                        available: true,  geo: { lat: 29.3810, lng: 79.4640 } },
-    { id: "es12", type: "disaster",  name: "NDRF Camp Ramnagar",                  district: "Nainital",          address: "Ramnagar Base, Nainital",               phone: "05947-251500",              available: true,  geo: { lat: 29.3900, lng: 79.4800 } },
+    { id: "es9", type: "hospital", name: "BG Sardar Ballabh Pant Govt Hospital", district: "Nainital", address: "Mall Road, Nainital", phone: "05942-235812", beds: 250, available: true, geo: { lat: 29.3803, lng: 79.4636 } },
+    { id: "es10", type: "fire", name: "Nainital Fire Station", district: "Nainital", address: "Malital, Nainital", phone: "05942-235100", available: true, geo: { lat: 29.3800, lng: 79.4600 } },
+    { id: "es11", type: "ambulance", name: "108 Emergency Nainital", district: "Nainital", address: "Mallital, Nainital", phone: "108", available: true, geo: { lat: 29.3810, lng: 79.4640 } },
+    { id: "es12", type: "disaster", name: "NDRF Camp Ramnagar", district: "Nainital", address: "Ramnagar Base, Nainital", phone: "05947-251500", available: true, geo: { lat: 29.3900, lng: 79.4800 } },
     // Pithoragarh
-    { id: "es13", type: "hospital",  name: "District Hospital Pithoragarh",       district: "Pithoragarh",       address: "Munsiari Road, Pithoragarh",            phone: "05964-225102", beds: 180, available: true,  geo: { lat: 29.5826, lng: 80.2181 } },
-    { id: "es14", type: "fire",      name: "Pithoragarh Fire Station",            district: "Pithoragarh",       address: "Sadar Bazar, Pithoragarh",              phone: "05964-224222",              available: false, geo: { lat: 29.5800, lng: 80.2150 } },
+    { id: "es13", type: "hospital", name: "District Hospital Pithoragarh", district: "Pithoragarh", address: "Munsiari Road, Pithoragarh", phone: "05964-225102", beds: 180, available: true, geo: { lat: 29.5826, lng: 80.2181 } },
+    { id: "es14", type: "fire", name: "Pithoragarh Fire Station", district: "Pithoragarh", address: "Sadar Bazar, Pithoragarh", phone: "05964-224222", available: false, geo: { lat: 29.5800, lng: 80.2150 } },
     // Champawat
-    { id: "es15", type: "hospital",  name: "District Hospital Champawat",         district: "Champawat",         address: "Main Road, Champawat",                  phone: "05965-230200", beds: 100, available: true,  geo: { lat: 29.3333, lng: 80.0893 } },
-    { id: "es16", type: "ambulance", name: "108 Emergency Champawat",             district: "Champawat",         address: "Champawat Bus Stand",                   phone: "108",                        available: true,  geo: { lat: 29.3340, lng: 80.0900 } },
+    { id: "es15", type: "hospital", name: "District Hospital Champawat", district: "Champawat", address: "Main Road, Champawat", phone: "05965-230200", beds: 100, available: true, geo: { lat: 29.3333, lng: 80.0893 } },
+    { id: "es16", type: "ambulance", name: "108 Emergency Champawat", district: "Champawat", address: "Champawat Bus Stand", phone: "108", available: true, geo: { lat: 29.3340, lng: 80.0900 } },
     // Almora
-    { id: "es17", type: "hospital",  name: "Base Hospital Almora",                district: "Almora",            address: "Lamachaur, Almora",                     phone: "05962-231002", beds: 200, available: true,  geo: { lat: 29.5971, lng: 79.6591 } },
-    { id: "es18", type: "fire",      name: "Almora Fire Brigade",                 district: "Almora",            address: "Kachahri Road, Almora",                 phone: "05962-231100",              available: true,  geo: { lat: 29.5960, lng: 79.6580 } },
+    { id: "es17", type: "hospital", name: "Base Hospital Almora", district: "Almora", address: "Lamachaur, Almora", phone: "05962-231002", beds: 200, available: true, geo: { lat: 29.5971, lng: 79.6591 } },
+    { id: "es18", type: "fire", name: "Almora Fire Brigade", district: "Almora", address: "Kachahri Road, Almora", phone: "05962-231100", available: true, geo: { lat: 29.5960, lng: 79.6580 } },
     // Udham Singh Nagar
-    { id: "es19", type: "hospital",  name: "Govt Medical College Rudrapur",       district: "Udham Singh Nagar", address: "Udham Singh Nagar Bypass",              phone: "05944-251800", beds: 450, available: true,  geo: { lat: 28.9800, lng: 79.4000 } },
-    { id: "es20", type: "fire",      name: "Rudrapur Fire Station",               district: "Udham Singh Nagar", address: "SIDCUL, Rudrapur",                      phone: "05944-240101",              available: true,  geo: { lat: 28.9750, lng: 79.3950 } },
-    { id: "es21", type: "ambulance", name: "108 Emergency USN Hub",               district: "Udham Singh Nagar", address: "Pantnagar Airport Rd",                  phone: "108",                        available: true,  geo: { lat: 28.9900, lng: 79.4100 } },
+    { id: "es19", type: "hospital", name: "Govt Medical College Rudrapur", district: "Udham Singh Nagar", address: "Udham Singh Nagar Bypass", phone: "05944-251800", beds: 450, available: true, geo: { lat: 28.9800, lng: 79.4000 } },
+    { id: "es20", type: "fire", name: "Rudrapur Fire Station", district: "Udham Singh Nagar", address: "SIDCUL, Rudrapur", phone: "05944-240101", available: true, geo: { lat: 28.9750, lng: 79.3950 } },
+    { id: "es21", type: "ambulance", name: "108 Emergency USN Hub", district: "Udham Singh Nagar", address: "Pantnagar Airport Rd", phone: "108", available: true, geo: { lat: 28.9900, lng: 79.4100 } },
     // Tehri
-    { id: "es22", type: "hospital",  name: "District Hospital New Tehri",         district: "Tehri Garhwal",     address: "New Tehri Town",                        phone: "01376-233300", beds: 150, available: true,  geo: { lat: 30.3783, lng: 78.4831 } },
-    { id: "es23", type: "disaster",  name: "Tehri Dam Disaster Response",         district: "Tehri Garhwal",     address: "THDC Colony, New Tehri",                phone: "01376-232800",              available: true,  geo: { lat: 30.3800, lng: 78.4850 } },
+    { id: "es22", type: "hospital", name: "District Hospital New Tehri", district: "Tehri Garhwal", address: "New Tehri Town", phone: "01376-233300", beds: 150, available: true, geo: { lat: 30.3783, lng: 78.4831 } },
+    { id: "es23", type: "disaster", name: "Tehri Dam Disaster Response", district: "Tehri Garhwal", address: "THDC Colony, New Tehri", phone: "01376-232800", available: true, geo: { lat: 30.3800, lng: 78.4850 } },
     // Uttarkashi
-    { id: "es24", type: "hospital",  name: "District Hospital Uttarkashi",        district: "Uttarkashi",        address: "Birpur Road, Uttarkashi",               phone: "01374-222802", beds: 120, available: true,  geo: { lat: 30.7268, lng: 78.4350 } },
-    { id: "es25", type: "fire",      name: "Uttarkashi Fire Station",             district: "Uttarkashi",        address: "Nehru Market, Uttarkashi",              phone: "01374-222100",              available: true,  geo: { lat: 30.7260, lng: 78.4340 } },
+    { id: "es24", type: "hospital", name: "District Hospital Uttarkashi", district: "Uttarkashi", address: "Birpur Road, Uttarkashi", phone: "01374-222802", beds: 120, available: true, geo: { lat: 30.7268, lng: 78.4350 } },
+    { id: "es25", type: "fire", name: "Uttarkashi Fire Station", district: "Uttarkashi", address: "Nehru Market, Uttarkashi", phone: "01374-222100", available: true, geo: { lat: 30.7260, lng: 78.4340 } },
     // Chamoli
-    { id: "es26", type: "hospital",  name: "District Hospital Gopeshwar",         district: "Chamoli",           address: "Gopeshwar, Chamoli",                    phone: "01372-252802", beds: 130, available: true,  geo: { lat: 30.3960, lng: 79.3203 } },
-    { id: "es27", type: "disaster",  name: "ITBP Joshimath Rescue Base",          district: "Chamoli",           address: "Joshimath, Chamoli",                    phone: "01389-222025",              available: true,  geo: { lat: 30.5503, lng: 79.5656 } },
+    { id: "es26", type: "hospital", name: "District Hospital Gopeshwar", district: "Chamoli", address: "Gopeshwar, Chamoli", phone: "01372-252802", beds: 130, available: true, geo: { lat: 30.3960, lng: 79.3203 } },
+    { id: "es27", type: "disaster", name: "ITBP Joshimath Rescue Base", district: "Chamoli", address: "Joshimath, Chamoli", phone: "01389-222025", available: true, geo: { lat: 30.5503, lng: 79.5656 } },
     // Rudraprayag
-    { id: "es28", type: "hospital",  name: "District Hospital Rudraprayag",       district: "Rudraprayag",       address: "Agastyamuni Road, Rudraprayag",         phone: "01364-233100", beds: 100, available: true,  geo: { lat: 30.2847, lng: 78.9816 } },
+    { id: "es28", type: "hospital", name: "District Hospital Rudraprayag", district: "Rudraprayag", address: "Agastyamuni Road, Rudraprayag", phone: "01364-233100", beds: 100, available: true, geo: { lat: 30.2847, lng: 78.9816 } },
     // Pauri Garhwal
-    { id: "es29", type: "hospital",  name: "Base Hospital Pauri",                 district: "Pauri Garhwal",     address: "Kandoliya, Pauri",                      phone: "01368-222200", beds: 180, available: true,  geo: { lat: 30.1455, lng: 78.7756 } },
+    { id: "es29", type: "hospital", name: "Base Hospital Pauri", district: "Pauri Garhwal", address: "Kandoliya, Pauri", phone: "01368-222200", beds: 180, available: true, geo: { lat: 30.1455, lng: 78.7756 } },
     // Bageshwar
-    { id: "es30", type: "hospital",  name: "District Hospital Bageshwar",         district: "Bageshwar",         address: "Bagnath, Bageshwar",                    phone: "05963-220200", beds: 80,  available: false, geo: { lat: 29.8389, lng: 79.7726 } },
+    { id: "es30", type: "hospital", name: "District Hospital Bageshwar", district: "Bageshwar", address: "Bagnath, Bageshwar", phone: "05963-220200", beds: 80, available: false, geo: { lat: 29.8389, lng: 79.7726 } },
   ];
   private wsListeners: Set<(event: any) => void> = new Set();
+  public policeCases: PoliceCase[] = [];
+  public flaggedCases: FlaggedCase[] = [];
+  public suggestedLinkages: SuggestedLinkage[] = [];
+  public spEscalations: SPEscalation[] = [];
+  public patrolDispatches: PatrolDispatch[] = [];
+  public crossDistrictRequests: CrossDistrictRequest[] = [
+    { id: "cdr-seed-1", caseId: "case-003", firNumber: "MYS/2026/FIR-112", requestingOfficerId: "IO-402", requestingDistrict: "Mysuru", targetDistrict: "Bengaluru Urban", status: "Pending", timestamp: new Date(Date.now() - 3600_000).toISOString() },
+    { id: "cdr-seed-2", caseId: "case-001", firNumber: "KSP/2026/FIR-1042", requestingOfficerId: "IO-402", requestingDistrict: "Hubballi-Dharwad", targetDistrict: "Bengaluru Urban", status: "Pending", timestamp: new Date(Date.now() - 7200_000).toISOString() },
+    { id: "cdr-seed-3", caseId: "case-002", firNumber: "KSP/2026/CYBER-501", requestingOfficerId: "IO-402", requestingDistrict: "Mysuru", targetDistrict: "Bengaluru Urban", status: "Pending", timestamp: new Date(Date.now() - 10800_000).toISOString() },
+  ];
 
   constructor() { this.seed(); }
 
@@ -748,22 +847,23 @@ class AppStorage {
   broadcastEvent(event: any) { this.wsListeners.forEach(fn => fn(event)); }
 
   private seed() {
+    this.seedPoliceCases();
     // Super Admin — sees all Uttarakhand
     const superAdminId = genId();
     this.users.set(superAdminId, {
-      id: superAdminId, name: "SANKALP Super Admin", phone: "9999999999", pin: "000000",
+      id: superAdminId, name: "SAHASRA Super Admin", phone: "9999999999", pin: "000000",
       role: "super_admin", district: "Uttarakhand", points: 9999,
       badges: ["super_admin"], level: 99, createdAt: new Date().toISOString()
     });
 
     // District Admins — one per district
     const adminDistricts = [
-      { phone: "9999000001", name: "Dehradun Admin",         district: "Dehradun",         pin: "111111" },
-      { phone: "9999000002", name: "Haridwar Admin",         district: "Haridwar",         pin: "222222" },
-      { phone: "9999000003", name: "Champawat Admin",        district: "Champawat",        pin: "333333" },
-      { phone: "9999000004", name: "Nainital Admin",         district: "Nainital",         pin: "444444" },
-      { phone: "9999000005", name: "Almora Admin",           district: "Almora",           pin: "555555" },
-      { phone: "9999000006", name: "Rudrapur Admin",         district: "Udham Singh Nagar",pin: "666666" },
+      { phone: "9999000001", name: "Dehradun Admin", district: "Dehradun", pin: "111111" },
+      { phone: "9999000002", name: "Haridwar Admin", district: "Haridwar", pin: "222222" },
+      { phone: "9999000003", name: "Champawat Admin", district: "Champawat", pin: "333333" },
+      { phone: "9999000004", name: "Nainital Admin", district: "Nainital", pin: "444444" },
+      { phone: "9999000005", name: "Almora Admin", district: "Almora", pin: "555555" },
+      { phone: "9999000006", name: "Rudrapur Admin", district: "Udham Singh Nagar", pin: "666666" },
     ];
     adminDistricts.forEach(a => {
       const id = genId();
@@ -784,26 +884,26 @@ class AppStorage {
 
     // More Uttarakhand citizens across districts
     const citizenSeeds: Omit<AppUser, "id" | "createdAt">[] = [
-      { name: "Ramesh Kumar Rawat",    phone: "9811234567", pin: "112233", role: "citizen", district: "Dehradun",          points: 1420, badges: ["first_report", "active_citizen", "civic_hero", "city_champion"], level: 10 },
-      { name: "Priya Bisht",           phone: "9711234568", pin: "223344", role: "citizen", district: "Haridwar",          points: 1180, badges: ["first_report", "active_citizen", "civic_hero", "city_champion"], level: 10 },
-      { name: "Amit Negi",             phone: "9911234569", pin: "334455", role: "citizen", district: "Nainital",          points:  980, badges: ["first_report", "active_citizen", "civic_hero"], level: 9 },
-      { name: "Sunita Mahar",          phone: "9611234570", pin: "445566", role: "citizen", district: "Almora",            points:  760, badges: ["first_report", "active_citizen", "civic_hero"], level: 8 },
-      { name: "Ravi Panwar",           phone: "9511234571", pin: "556677", role: "citizen", district: "Champawat",         points:  890, badges: ["first_report", "active_citizen", "civic_hero", "city_champion"], level: 9 },
-      { name: "Deepa Adhikari",        phone: "9411234572", pin: "667788", role: "citizen", district: "Pithoragarh",       points:  610, badges: ["first_report", "active_citizen", "civic_hero"], level: 7 },
-      { name: "Suresh Tamta",          phone: "9311234573", pin: "778899", role: "citizen", district: "Udham Singh Nagar", points:  455, badges: ["first_report", "active_citizen"], level: 5 },
-      { name: "Kavita Bora",           phone: "9211234574", pin: "889900", role: "citizen", district: "Dehradun",          points: 1050, badges: ["first_report", "active_citizen", "civic_hero", "city_champion"], level: 10 },
-      { name: "Vikas Rana",            phone: "8811234575", pin: "990011", role: "citizen", district: "Tehri Garhwal",     points:  395, badges: ["first_report", "active_citizen"], level: 4 },
-      { name: "Asha Devi",             phone: "8711234576", pin: "001122", role: "citizen", district: "Rudraprayag",       points:  530, badges: ["first_report", "active_citizen"], level: 6 },
-      { name: "Mohan Joshi",           phone: "8611234577", pin: "112244", role: "citizen", district: "Uttarkashi",        points:  320, badges: ["first_report", "active_citizen"], level: 4 },
-      { name: "Lalita Semwal",         phone: "8511234578", pin: "223355", role: "citizen", district: "Chamoli",           points:  480, badges: ["first_report", "active_citizen"], level: 5 },
-      { name: "Naresh Singh",          phone: "8411234579", pin: "334466", role: "citizen", district: "Bageshwar",         points:  210, badges: ["first_report"], level: 3 },
-      { name: "Kamla Pant",            phone: "8311234580", pin: "445577", role: "citizen", district: "Pauri Garhwal",     points:  860, badges: ["first_report", "active_citizen", "civic_hero", "city_champion"], level: 9 },
-      { name: "Dinesh Bisht",          phone: "8211234581", pin: "556688", role: "citizen", district: "Dehradun",          points:  720, badges: ["first_report", "active_citizen", "civic_hero"], level: 8 },
-      { name: "Geeta Rawat",           phone: "8111234582", pin: "667799", role: "citizen", district: "Haridwar",          points:  640, badges: ["first_report", "active_citizen"], level: 7 },
-      { name: "Prakash Pant",          phone: "7911234583", pin: "778800", role: "citizen", district: "Nainital",          points:  580, badges: ["first_report", "active_citizen", "civic_hero"], level: 6 },
-      { name: "Savita Arya",           phone: "7811234584", pin: "889911", role: "citizen", district: "Almora",            points:  290, badges: ["first_report"], level: 3 },
-      { name: "Harish Chandra",        phone: "7711234585", pin: "990022", role: "citizen", district: "Pithoragarh",       points:  415, badges: ["first_report", "active_citizen"], level: 5 },
-      { name: "Meena Devi Tamang",     phone: "7611234586", pin: "001233", role: "citizen", district: "Chamoli",           points:  175, badges: ["new_citizen", "first_report"], level: 2 },
+      { name: "Ramesh Kumar Rawat", phone: "9811234567", pin: "112233", role: "citizen", district: "Dehradun", points: 1420, badges: ["first_report", "active_citizen", "civic_hero", "city_champion"], level: 10 },
+      { name: "Priya Bisht", phone: "9711234568", pin: "223344", role: "citizen", district: "Haridwar", points: 1180, badges: ["first_report", "active_citizen", "civic_hero", "city_champion"], level: 10 },
+      { name: "Amit Negi", phone: "9911234569", pin: "334455", role: "citizen", district: "Nainital", points: 980, badges: ["first_report", "active_citizen", "civic_hero"], level: 9 },
+      { name: "Sunita Mahar", phone: "9611234570", pin: "445566", role: "citizen", district: "Almora", points: 760, badges: ["first_report", "active_citizen", "civic_hero"], level: 8 },
+      { name: "Ravi Panwar", phone: "9511234571", pin: "556677", role: "citizen", district: "Champawat", points: 890, badges: ["first_report", "active_citizen", "civic_hero", "city_champion"], level: 9 },
+      { name: "Deepa Adhikari", phone: "9411234572", pin: "667788", role: "citizen", district: "Pithoragarh", points: 610, badges: ["first_report", "active_citizen", "civic_hero"], level: 7 },
+      { name: "Suresh Tamta", phone: "9311234573", pin: "778899", role: "citizen", district: "Udham Singh Nagar", points: 455, badges: ["first_report", "active_citizen"], level: 5 },
+      { name: "Kavita Bora", phone: "9211234574", pin: "889900", role: "citizen", district: "Dehradun", points: 1050, badges: ["first_report", "active_citizen", "civic_hero", "city_champion"], level: 10 },
+      { name: "Vikas Rana", phone: "8811234575", pin: "990011", role: "citizen", district: "Tehri Garhwal", points: 395, badges: ["first_report", "active_citizen"], level: 4 },
+      { name: "Asha Devi", phone: "8711234576", pin: "001122", role: "citizen", district: "Rudraprayag", points: 530, badges: ["first_report", "active_citizen"], level: 6 },
+      { name: "Mohan Joshi", phone: "8611234577", pin: "112244", role: "citizen", district: "Uttarkashi", points: 320, badges: ["first_report", "active_citizen"], level: 4 },
+      { name: "Lalita Semwal", phone: "8511234578", pin: "223355", role: "citizen", district: "Chamoli", points: 480, badges: ["first_report", "active_citizen"], level: 5 },
+      { name: "Naresh Singh", phone: "8411234579", pin: "334466", role: "citizen", district: "Bageshwar", points: 210, badges: ["first_report"], level: 3 },
+      { name: "Kamla Pant", phone: "8311234580", pin: "445577", role: "citizen", district: "Pauri Garhwal", points: 860, badges: ["first_report", "active_citizen", "civic_hero", "city_champion"], level: 9 },
+      { name: "Dinesh Bisht", phone: "8211234581", pin: "556688", role: "citizen", district: "Dehradun", points: 720, badges: ["first_report", "active_citizen", "civic_hero"], level: 8 },
+      { name: "Geeta Rawat", phone: "8111234582", pin: "667799", role: "citizen", district: "Haridwar", points: 640, badges: ["first_report", "active_citizen"], level: 7 },
+      { name: "Prakash Pant", phone: "7911234583", pin: "778800", role: "citizen", district: "Nainital", points: 580, badges: ["first_report", "active_citizen", "civic_hero"], level: 6 },
+      { name: "Savita Arya", phone: "7811234584", pin: "889911", role: "citizen", district: "Almora", points: 290, badges: ["first_report"], level: 3 },
+      { name: "Harish Chandra", phone: "7711234585", pin: "990022", role: "citizen", district: "Pithoragarh", points: 415, badges: ["first_report", "active_citizen"], level: 5 },
+      { name: "Meena Devi Tamang", phone: "7611234586", pin: "001233", role: "citizen", district: "Chamoli", points: 175, badges: ["new_citizen", "first_report"], level: 2 },
     ];
     citizenSeeds.forEach(c => {
       const id = genId();
@@ -814,6 +914,7 @@ class AppStorage {
     WORKER_NAMES.forEach((name, i) => {
       const ward = WARDS_DATA[i % WARDS_DATA.length];
       const score = rndInt(55, 98);
+      const activeCases = rndInt(1, 10);
       this.workers.push({
         id: `w${i}`,
         name,
@@ -832,6 +933,10 @@ class AppStorage {
           "Landslide debris clearing"
         ]) : undefined,
         geo: perturbGeo(ward.center, 0.012),
+        workingHours: rndInt(4, 14),
+        nightShifts: rndInt(0, 6),
+        activeCases: activeCases,
+        patrolFreq: parseFloat((3.0 + Math.random() * 4).toFixed(1))
       });
     });
 
@@ -951,17 +1056,17 @@ class AppStorage {
       {
         title: "PM Awas Yojana — Uttarakhand Housing Applications Open",
         body: "Uttarakhand Government invites applications for affordable housing under PM Awas Yojana Urban 2.0. Eligible families with annual income below ₹18 lakh can apply at district collector offices or online at ukhfdc.com. Last date: 31 March 2026.",
-        type: "scheme", department: "Uttarakhand Housing Development & Construction Unit", priority: "important", postedBy: "SANKALP Super Admin"
+        type: "scheme", department: "Uttarakhand Housing Development & Construction Unit", priority: "important", postedBy: "SAHASRA Super Admin"
       },
       {
         title: "Free Eye Checkup Camp — Champawat District",
         body: "Uttarakhand Health Department organising free eye checkup and spectacle distribution camps in Champawat. Venue: District Hospital Champawat. Timings: 9 AM–4 PM. Bring Aadhaar card.",
-        type: "welfare", department: "Uttarakhand Health Department", priority: "important", postedBy: "SANKALP Super Admin", targetDistrict: "Champawat"
+        type: "welfare", department: "Uttarakhand Health Department", priority: "important", postedBy: "SAHASRA Super Admin", targetDistrict: "Champawat"
       },
       {
         title: "Uttarakhand Mukhyamantri Swarojgar Yojana 2026",
         body: "Apply for self-employment loans under CM Swarojgar Yojana. Subsidy of 25% up to ₹2 lakh for mountain residents. Visit district magistrate office or apply at cm.uk.gov.in.",
-        type: "scheme", department: "District Industries Centre, Uttarakhand", priority: "urgent", postedBy: "SANKALP Super Admin"
+        type: "scheme", department: "District Industries Centre, Uttarakhand", priority: "urgent", postedBy: "SAHASRA Super Admin"
       },
       {
         title: "Water Supply Disruption — Dehradun City",
@@ -971,42 +1076,42 @@ class AppStorage {
       {
         title: "Landslide Alert — Heavy Rain Warning for Hill Districts",
         body: "IMD has issued Orange Alert for heavy rainfall in Chamoli, Rudraprayag, Uttarkashi and Tehri districts. Citizens are advised to stay away from landslide-prone areas. Emergency helpline: 1070.",
-        type: "emergency", department: "Uttarakhand Disaster Management Authority", priority: "urgent", postedBy: "SANKALP Super Admin"
+        type: "emergency", department: "Uttarakhand Disaster Management Authority", priority: "urgent", postedBy: "SAHASRA Super Admin"
       },
       {
         title: "Veer Chandra Singh Garhwali Paryatan Vikas Yojana",
         body: "Uttarakhand Tourism Department invites applications from villagers to develop eco-tourism homestays. Grant of ₹5 lakh available. Visit tourism.uk.gov.in or nearest ITDC office.",
-        type: "scheme", department: "Uttarakhand Tourism Development Board", priority: "important", postedBy: "SANKALP Super Admin"
+        type: "scheme", department: "Uttarakhand Tourism Development Board", priority: "important", postedBy: "SAHASRA Super Admin"
       },
       {
         title: "Ration Card Correction Drive — All Districts",
         body: "Uttarakhand Food & Civil Supplies Department is conducting a special ration card correction and Aadhaar seeding drive. Citizens can get names added/corrected at tehsil offices. Documents needed: Aadhaar, old ration card, address proof. Drive runs from 1st to 31st of this month.",
-        type: "welfare", department: "Uttarakhand Food & Civil Supplies Department", priority: "important", postedBy: "SANKALP Super Admin"
+        type: "welfare", department: "Uttarakhand Food & Civil Supplies Department", priority: "important", postedBy: "SAHASRA Super Admin"
       },
       {
         title: "Uttarakhand Board Result 2025 — Class 10 & 12 Declared",
         body: "Uttarakhand Board of School Education (UBSE) has declared class 10 and 12 results for 2025. Pass percentage: Class 10 — 82.3%, Class 12 — 79.6%. Students can check results at ubse.uk.gov.in. Merit certificates to be issued within 30 days. Helpline: 0135-2674117.",
-        type: "general", department: "Uttarakhand Board of School Education", priority: "important", postedBy: "SANKALP Super Admin"
+        type: "general", department: "Uttarakhand Board of School Education", priority: "important", postedBy: "SAHASRA Super Admin"
       },
       {
         title: "Gas Cylinder Home Delivery — Apply Online Now",
         body: "Uttarakhand residents in remote hill areas can now register for home delivery of LPG cylinders under Pradhan Mantri Ujjwala Yojana. Apply at pmuy.gov.in or at nearest Common Service Centre. Priority for BPL families and women-headed households. Subsidy continues: ₹300 per cylinder for eligible beneficiaries.",
-        type: "scheme", department: "Ministry of Petroleum & Natural Gas, UK Nodal Office", priority: "normal", postedBy: "SANKALP Super Admin"
+        type: "scheme", department: "Ministry of Petroleum & Natural Gas, UK Nodal Office", priority: "normal", postedBy: "SAHASRA Super Admin"
       },
       {
         title: "Road Closure — Rishikesh–Badrinath Highway Repair",
         body: "Due to emergency road repair work after monsoon damage, the Rishikesh–Badrinath National Highway (NH-58) will remain closed for heavy vehicles from Devprayag to Srinagar on Tuesdays and Thursdays (9 AM – 5 PM). Light vehicles and pilgrim buses will be allowed via alternate route. Helpline: 1800-180-4247.",
-        type: "emergency", department: "National Highways Authority of India (NHAI)", priority: "urgent", postedBy: "SANKALP Super Admin"
+        type: "emergency", department: "National Highways Authority of India (NHAI)", priority: "urgent", postedBy: "SAHASRA Super Admin"
       },
       {
         title: "MGNREGA 100-Day Work Guarantee — Register Now",
         body: "All rural households of Uttarakhand can register for MGNREGA employment guarantee. 100 days of guaranteed wage employment per year. Daily wage: ₹230–₹250 for Uttarakhand (varies by district). Register at your Gram Panchayat or online at nregastrep.nic.in. Priority work includes road maintenance, tree plantation, water conservation.",
-        type: "scheme", department: "Rural Development Department, Uttarakhand", priority: "normal", postedBy: "SANKALP Super Admin"
+        type: "scheme", department: "Rural Development Department, Uttarakhand", priority: "normal", postedBy: "SAHASRA Super Admin"
       },
       {
         title: "Holiday Notice — Uttarakhand Sthapna Diwas (9 November)",
         body: "9 November is a public holiday in Uttarakhand on account of Uttarakhand Sthapna Diwas (State Foundation Day). All government offices, banks, schools, and courts will remain closed. Emergency services will continue. State-level cultural events to be held at Parade Ground, Dehradun from 10 AM.",
-        type: "holiday", department: "Uttarakhand General Administration Department", priority: "normal", postedBy: "SANKALP Super Admin"
+        type: "holiday", department: "Uttarakhand General Administration Department", priority: "normal", postedBy: "SAHASRA Super Admin"
       },
       {
         title: "Tender Notice — LED Streetlight Upgrade Haridwar",
@@ -1022,9 +1127,9 @@ class AppStorage {
     // Seed polls
     const seedPolls: Omit<Poll, "id">[] = [
       { question: "Which area needs urgent road repair in Dehradun?", options: ["Rajpur Road", "Sahastradhara Road", "Haridwar Road", "Rispana Bridge area"], votes: [45, 32, 28, 19], voterIds: [], district: "Dehradun", createdAt: new Date(Date.now() - 2 * 86400000).toISOString(), createdBy: "Dehradun Admin", status: "active" },
-      { question: "Should we extend garbage collection to Sundays?", options: ["Yes, strongly agree", "No, weekdays are enough", "Need more dustbins first"], votes: [128, 34, 67], voterIds: [], createdAt: new Date(Date.now() - 5 * 86400000).toISOString(), createdBy: "SANKALP Super Admin", status: "active" },
+      { question: "Should we extend garbage collection to Sundays?", options: ["Yes, strongly agree", "No, weekdays are enough", "Need more dustbins first"], votes: [128, 34, 67], voterIds: [], createdAt: new Date(Date.now() - 5 * 86400000).toISOString(), createdBy: "SAHASRA Super Admin", status: "active" },
       { question: "Rate the water supply quality in your area", options: ["Excellent", "Good", "Average", "Poor", "Very Poor"], votes: [12, 38, 56, 41, 23], voterIds: [], district: "Haridwar", createdAt: new Date(Date.now() - 3 * 86400000).toISOString(), createdBy: "Haridwar Admin", status: "active" },
-      { question: "Which civic service needs most improvement?", options: ["Street Lighting", "Garbage Collection", "Road Repair", "Water Supply", "Drainage"], votes: [55, 72, 98, 61, 44], voterIds: [], createdAt: new Date(Date.now() - 7 * 86400000).toISOString(), createdBy: "SANKALP Super Admin", status: "active" },
+      { question: "Which civic service needs most improvement?", options: ["Street Lighting", "Garbage Collection", "Road Repair", "Water Supply", "Drainage"], votes: [55, 72, 98, 61, 44], voterIds: [], createdAt: new Date(Date.now() - 7 * 86400000).toISOString(), createdBy: "SAHASRA Super Admin", status: "active" },
     ];
     seedPolls.forEach(p => this.polls.push({ ...p, id: genId() }));
 
@@ -1045,10 +1150,10 @@ class AppStorage {
     const seedEvents: Omit<CivicEvent, "id">[] = [
       { title: "Free Health Camp — Haridwar District", description: "Free general health checkup, blood pressure, sugar, eye testing and dental checkup for all citizens. Medicines provided free of cost. Bring Aadhaar card.", date: futureDate(3), time: "9:00 AM – 4:00 PM", location: "District Hospital, Haridwar", type: "camp", district: "Haridwar", rsvpIds: Array(78).fill("").map(() => genId()), organizer: "Uttarakhand Health Dept", createdAt: new Date().toISOString() },
       { title: "Ward Committee Meeting — Dehradun East", description: "Monthly citizen grievance redressal meeting with ward officer. Bring your pending complaint tickets for direct resolution. All residents welcome.", date: futureDate(5), time: "11:00 AM – 1:00 PM", location: "Ward Office, Raipur Block, Dehradun", type: "meeting", district: "Dehradun", rsvpIds: Array(34).fill("").map(() => genId()), organizer: "Dehradun Admin", createdAt: new Date().toISOString() },
-      { title: "Swachh Bharat Drive — Nainital Lake Cleanup", description: "Join us in cleaning the banks of Naini Lake. Gloves and bags provided. Earn 50 SANKALP civic points for participating. All age groups welcome.", date: futureDate(7), time: "7:00 AM – 10:00 AM", location: "Naini Lake Boat Club, Nainital", type: "drive", district: "Nainital", rsvpIds: Array(112).fill("").map(() => genId()), organizer: "Nainital Admin", createdAt: new Date().toISOString() },
+      { title: "Swachh Bharat Drive — Nainital Lake Cleanup", description: "Join us in cleaning the banks of Naini Lake. Gloves and bags provided. Earn 50 SAHASRA civic points for participating. All age groups welcome.", date: futureDate(7), time: "7:00 AM – 10:00 AM", location: "Naini Lake Boat Club, Nainital", type: "drive", district: "Nainital", rsvpIds: Array(112).fill("").map(() => genId()), organizer: "Nainital Admin", createdAt: new Date().toISOString() },
       { title: "PM Awas Yojana Registration Drive", description: "Government camp for registering beneficiaries for PM Awas Yojana urban housing scheme. Income below ₹18L. Bring Aadhaar, income certificate, land documents.", date: futureDate(10), time: "10:00 AM – 5:00 PM", location: "Collectorate Office, Dehradun", type: "scheme", district: "Dehradun", rsvpIds: Array(203).fill("").map(() => genId()), organizer: "Dehradun Admin", createdAt: new Date().toISOString() },
       { title: "Tree Plantation Drive — Uttarkashi Hills", description: "Forest Department invites volunteers to plant 5000 saplings on degraded hillside. Transportation provided from Uttarkashi town. Certificate given to all volunteers.", date: futureDate(14), time: "8:00 AM – 3:00 PM", location: "Forest Range Office, Uttarkashi", type: "drive", district: "Uttarkashi", rsvpIds: Array(45).fill("").map(() => genId()), organizer: "Forest Department, Uttarkashi", createdAt: new Date().toISOString() },
-      { title: "SANKALP AI Town Hall — All Districts", description: "State-level town hall on civic infrastructure improvement. Citizens can directly address district officers. Live broadcast. Attend in person or online.", date: futureDate(20), time: "3:00 PM – 6:00 PM", location: "Raj Bhavan Auditorium, Dehradun (+ Online)", type: "meeting", rsvpIds: Array(567).fill("").map(() => genId()), organizer: "SANKALP Super Admin", createdAt: new Date().toISOString() },
+      { title: "SAHASRA AI Town Hall — All Districts", description: "State-level town hall on civic infrastructure improvement. Citizens can directly address district officers. Live broadcast. Attend in person or online.", date: futureDate(20), time: "3:00 PM – 6:00 PM", location: "Raj Bhavan Auditorium, Dehradun (+ Online)", type: "meeting", rsvpIds: Array(567).fill("").map(() => genId()), organizer: "SAHASRA Super Admin", createdAt: new Date().toISOString() },
     ];
     seedEvents.forEach(e => this.civicEvents.push({ ...e, id: genId() }));
 
@@ -1064,19 +1169,19 @@ class AppStorage {
       { department: "Disaster Management", category: "Emergency Preparedness", allocated: 2800, spent: 1400, description: "Landslide barriers, flood early warning, rescue equipment" },
     ];
     const DISTRICT_SCALE: Record<string, { alloc: number; spent: number }> = {
-      "Dehradun":         { alloc: 1.40, spent: 1.30 },
-      "Haridwar":         { alloc: 1.20, spent: 1.08 },
-      "Nainital":         { alloc: 1.00, spent: 0.88 },
-      "Udham Singh Nagar":{ alloc: 1.10, spent: 0.96 },
-      "Almora":           { alloc: 0.75, spent: 0.62 },
-      "Pithoragarh":      { alloc: 0.70, spent: 0.55 },
-      "Champawat":        { alloc: 0.55, spent: 0.42 },
-      "Bageshwar":        { alloc: 0.50, spent: 0.36 },
-      "Tehri Garhwal":    { alloc: 0.80, spent: 0.65 },
-      "Pauri Garhwal":    { alloc: 0.72, spent: 0.58 },
-      "Rudraprayag":      { alloc: 0.60, spent: 0.44 },
-      "Chamoli":          { alloc: 0.65, spent: 0.50 },
-      "Uttarkashi":       { alloc: 0.62, spent: 0.47 },
+      "Dehradun": { alloc: 1.40, spent: 1.30 },
+      "Haridwar": { alloc: 1.20, spent: 1.08 },
+      "Nainital": { alloc: 1.00, spent: 0.88 },
+      "Udham Singh Nagar": { alloc: 1.10, spent: 0.96 },
+      "Almora": { alloc: 0.75, spent: 0.62 },
+      "Pithoragarh": { alloc: 0.70, spent: 0.55 },
+      "Champawat": { alloc: 0.55, spent: 0.42 },
+      "Bageshwar": { alloc: 0.50, spent: 0.36 },
+      "Tehri Garhwal": { alloc: 0.80, spent: 0.65 },
+      "Pauri Garhwal": { alloc: 0.72, spent: 0.58 },
+      "Rudraprayag": { alloc: 0.60, spent: 0.44 },
+      "Chamoli": { alloc: 0.65, spent: 0.50 },
+      "Uttarkashi": { alloc: 0.62, spent: 0.47 },
     };
     DEPARTMENTS_BUDGET.forEach(b => {
       Object.entries(DISTRICT_SCALE).forEach(([district, scale]) => {
@@ -1095,6 +1200,77 @@ class AppStorage {
       { ticketId: `RTI-UK-${rndInt(10000, 99999)}`, subject: "Status of road repair work on Rajpur Road", description: "I am a resident of Rajpur Road, Dehradun. I request information on the status of road repair work sanctioned in 2024-25 budget, total expenditure incurred, contractor details and expected completion date.", department: "Public Works Department", filedBy: "Arjun", filedByPhone: "9876543210", filedAt: new Date(Date.now() - 15 * 86400000).toISOString(), status: "acknowledged", district: "Champawat", deadline: new Date(Date.now() + 15 * 86400000).toISOString() },
     ];
     seedRTIs.forEach(r => this.rtis.push({ ...r, id: genId() }));
+
+    // Seed initial cryptographically chained audit logs
+    const seedAuditEntries = [
+      {
+        action: "auth_login",
+        userId: "usr_admin",
+        userName: "DGP Alok Kumar",
+        details: "DGP Alok Kumar logged in from command console (Sec 7.1)",
+        purpose: "System Access Authentication",
+        dpdpSection: "Section 7(i) - Law Enforcement / State Functions",
+        district: "Bengaluru Urban",
+      },
+      {
+        action: "cctns_search",
+        userId: "usr_police",
+        userName: "Inspector Reddy",
+        details: "Inspector Reddy searched 'Cobra Ramesh' in FAISS suspect index",
+        purpose: "CCTNS Search / Crime Intelligence Query",
+        dpdpSection: "Section 7(i) - Law Enforcement / State Functions",
+        district: "Bengaluru Urban",
+      },
+      {
+        action: "access_profile",
+        userId: "usr_police",
+        userName: "Inspector Reddy",
+        details: "Inspector Reddy read FIR #2026/0401 (Sec 6.2a) containing personal details",
+        purpose: "Suspect Profile Inspection",
+        dpdpSection: "Section 7(i) - Law Enforcement / State Functions",
+        district: "Bengaluru Urban",
+      },
+      {
+        action: "rti_filed",
+        userId: "9876543210",
+        userName: "Arjun",
+        details: "RTI filed: Status of road repair work on Rajpur Road",
+        purpose: "RTI Processing",
+        dpdpSection: "Section 7(a) - Specified Purpose",
+        district: "Champawat",
+      },
+      {
+        action: "provision_officer",
+        userId: "usr_admin",
+        userName: "DGP Alok Kumar",
+        details: "KSP Officer account provisioned for Inspector Reddy with Badge #KSP-881920",
+        purpose: "Account Provisioning",
+        dpdpSection: "Section 4(1)(a) - Consent-based processing",
+        district: "Bengaluru Urban",
+      },
+      {
+        action: "automated_cleanup",
+        userId: "system",
+        userName: "SAHASRA System",
+        details: "Executed automated personal data cleanup query (Sec 11) for expired complaint records",
+        purpose: "Automated Service SLA Audit",
+        dpdpSection: "Section 11 - Right to Correction and Erasure",
+        district: "Bengaluru Urban",
+      },
+    ];
+
+    seedAuditEntries.forEach(entry => {
+      this.addAuditLog(
+        entry.action,
+        entry.userId,
+        entry.userName,
+        entry.details,
+        undefined,
+        entry.purpose,
+        entry.dpdpSection,
+        entry.district
+      );
+    });
   }
 
   private recomputeWards() {
@@ -1299,6 +1475,12 @@ class AppStorage {
     return [...this.workers];
   }
 
+  createWorker(data: Omit<Worker, "id">): Worker {
+    const worker: Worker = { ...data, id: `w_${Date.now()}` };
+    this.workers.unshift(worker);
+    return worker;
+  }
+
   // ── DISTRICT CENTER ──────────────────────────────────────────────────────────
   getDistrictCenter(district: string): GeoPoint {
     const found = DISTRICTS_DATA.find(d => d.district === district);
@@ -1329,6 +1511,15 @@ class AppStorage {
       return this.riskZones.filter(rz => rz.district === district);
     }
     return [...this.riskZones];
+  }
+
+  createRiskZone(data: Omit<RiskZone, "id">): RiskZone {
+    const rz: RiskZone = {
+      id: `rz_dyn_${Date.now()}_${Math.random().toString().slice(-4)}`,
+      ...data,
+    };
+    this.riskZones.push(rz);
+    return rz;
   }
 
   // ── LEADERBOARD ──────────────────────────────────────────────────────────────
@@ -1566,13 +1757,13 @@ class AppStorage {
     }
 
     const PREDICTIONS: Record<string, { prediction: string; action: string }> = {
-      pothole:     { prediction: "Road surface degradation trend detected — 73% increase in pothole reports over 14 days in this district", action: "Schedule district-wide road survey and pre-monsoon patching drive" },
-      garbage:     { prediction: "Waste accumulation hotspot identified — collection gaps on Tuesdays causing overflow at 3 wards", action: "Increase pickup frequency; deploy additional vehicles on Tuesday/Friday routes" },
-      water:       { prediction: "Pipe network stress pattern — recurring leaks suggest aging infrastructure in eastern zones", action: "Expedite pipe replacement tender; issue boil-water advisory for affected wards" },
+      pothole: { prediction: "Road surface degradation trend detected — 73% increase in pothole reports over 14 days in this district", action: "Schedule district-wide road survey and pre-monsoon patching drive" },
+      garbage: { prediction: "Waste accumulation hotspot identified — collection gaps on Tuesdays causing overflow at 3 wards", action: "Increase pickup frequency; deploy additional vehicles on Tuesday/Friday routes" },
+      water: { prediction: "Pipe network stress pattern — recurring leaks suggest aging infrastructure in eastern zones", action: "Expedite pipe replacement tender; issue boil-water advisory for affected wards" },
       streetlight: { prediction: "Lighting failure cluster near market areas — 40% of complaints repeat within 72 hours of repair", action: "Conduct full MSEB inspection; replace aging sodium-vapor lamps with LED" },
-      drain:       { prediction: "Pre-monsoon drainage blockage risk — history shows 3x spike in July–August in this district", action: "Begin drain desilting campaign immediately; identify critical choke points" },
+      drain: { prediction: "Pre-monsoon drainage blockage risk — history shows 3x spike in July–August in this district", action: "Begin drain desilting campaign immediately; identify critical choke points" },
       electricity: { prediction: "Grid load imbalance detected — transformer overloads likely during peak summer demand (June–July)", action: "Request UPCL load balancing audit; identify areas needing substation upgrades" },
-      tree:        { prediction: "Tree-fall risk elevated ahead of monsoon — 12 complaints in 30 days signals pre-storm vulnerability", action: "Deploy arborist teams for pre-monsoon pruning; mark 25+ critical trees for removal" },
+      tree: { prediction: "Tree-fall risk elevated ahead of monsoon — 12 complaints in 30 days signals pre-storm vulnerability", action: "Deploy arborist teams for pre-monsoon pruning; mark 25+ critical trees for removal" },
     };
 
     const alerts: PredictiveAlert[] = [];
@@ -1595,21 +1786,98 @@ class AppStorage {
   }
 
   // ── AUDIT LOGS ────────────────────────────────────────────────────────────────
-  addAuditLog(action: string, userId: string, userName: string, details: string, complaintId?: string): AuditLog {
+  addAuditLog(
+    action: string,
+    userId: string,
+    userName: string,
+    details: string,
+    complaintId?: string,
+    purpose?: string,
+    dpdpSection?: string,
+    district?: string
+  ): AuditLog {
+    const prevHash = this.auditLogs.length > 0
+      ? this.auditLogs[this.auditLogs.length - 1].hash || "0000000000000000000000000000000000000000000000000000000000000000"
+      : "0000000000000000000000000000000000000000000000000000000000000000";
+
+    const id = genId();
+    const timestamp = new Date().toISOString();
+    const finalPurpose = purpose || "General Audit Logging";
+    const finalDpdp = dpdpSection || "Section 7(i) - Law Enforcement / State Functions";
+    const finalDistrict = district || "Bengaluru Urban";
+
+    // Concat fields for hashing to guarantee immutability
+    const hashData = id + action + userId + userName + timestamp + details +
+      (complaintId || "") + prevHash + finalPurpose + finalDpdp + finalDistrict;
+    const hash = createHash("sha256").update(hashData).digest("hex");
+
     const log: AuditLog = {
-      id: genId(), action, userId, userName, details, timestamp: new Date().toISOString(), complaintId,
-      actorPhone: userId, actorName: userName,
+      id,
+      action,
+      userId,
+      userName,
+      details,
+      timestamp,
+      complaintId,
+      actorPhone: userId,
+      actorName: userName,
       referenceId: complaintId || `REF-${Date.now()}`,
-      hash: `0x${Array.from({ length: 40 }, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]).join("")}`,
+      hash,
+      prevHash,
+      purpose: finalPurpose,
+      dpdpSection: finalDpdp,
+      district: finalDistrict,
     };
+
     this.auditLogs.push(log);
     if (this.auditLogs.length > 5000) this.auditLogs.shift();
     return log;
   }
 
+  getAllAuditLogs(): AuditLog[] {
+    return [...this.auditLogs].reverse();
+  }
+
   getAuditLogs(complaintId?: string): AuditLog[] {
     if (complaintId) return this.auditLogs.filter(l => l.complaintId === complaintId);
     return [...this.auditLogs].reverse().slice(0, 200);
+  }
+
+  verifyAuditLedger(): { isValid: boolean; count: number; genesisHash: string; latestHash: string; tamperedIndex: number | null } {
+    let isValid = true;
+    let tamperedIndex: number | null = null;
+    const count = this.auditLogs.length;
+    if (count === 0) {
+      return { isValid: true, count: 0, genesisHash: "", latestHash: "", tamperedIndex: null };
+    }
+
+    const genesisHash = this.auditLogs[0].hash || "";
+    const latestHash = this.auditLogs[count - 1].hash || "";
+
+    for (let i = 0; i < count; i++) {
+      const current = this.auditLogs[i];
+      const prevHash = i > 0 ? this.auditLogs[i - 1].hash : "0000000000000000000000000000000000000000000000000000000000000000";
+
+      // Verify the chain link
+      if (current.prevHash !== prevHash) {
+        isValid = false;
+        tamperedIndex = i;
+        break;
+      }
+
+      // Verify block hash integrity
+      const hashData = current.id + current.action + current.userId + current.userName + current.timestamp + current.details +
+        (current.complaintId || "") + (current.prevHash || "") + (current.purpose || "") + (current.dpdpSection || "") + (current.district || "");
+      const calculatedHash = createHash("sha256").update(hashData).digest("hex");
+
+      if (current.hash !== calculatedHash) {
+        isValid = false;
+        tamperedIndex = i;
+        break;
+      }
+    }
+
+    return { isValid, count, genesisHash, latestHash, tamperedIndex };
   }
 
   // ── ADMIN STATS ──────────────────────────────────────────────────────────────
@@ -1716,6 +1984,294 @@ class AppStorage {
     };
     this.nightSafetyZones.unshift(zone);
     return zone;
+  }
+
+  // ── POLICE 4-ROLE SYSTEM ───────────────────────────────────────────────────
+  private seedPoliceCases() {
+    this.policeCases = [
+      {
+        id: "c1",
+        firNumber: "FIR-2026-KA0401",
+        title: "Chain Snatching & Assault near Peenya Flyover",
+        crimeType: "IPC Sec 379A / Sec 392 (Robbery)",
+        district: "Bengaluru Urban",
+        station: "Peenya PS",
+        victimName: "Ananya M.",
+        suspectName: "Cobra Ramesh (Kingpin)",
+        vehiclePlate: "KA-04-MH-1234",
+        narrative: "Accused riding dark blue pulsar targeted victim at 10:15 PM near unlit flyover corner.",
+        moDetails: "Operating near unlit metro flyovers at night, targeting solo commuters on two-wheelers.",
+        status: "Open",
+        createdAt: new Date(Date.now() - 48 * 3600000).toISOString(),
+        updatedAt: new Date(Date.now() - 12 * 3600000).toISOString(),
+        taskPending: true,
+      },
+      {
+        id: "c2",
+        firNumber: "FIR-2026-KA0402",
+        title: "Attempted Night Burglary at Residence",
+        crimeType: "IPC Sec 454 (Lurking House Trespass)",
+        district: "Bengaluru Urban",
+        station: "Koramangala PS",
+        victimName: "Suresh Kumar",
+        suspectName: "Mule Gowda (Manager)",
+        vehiclePlate: "KA-01-HH-4882",
+        narrative: "Latches broken on back door between 2 AM and 4 AM. Alarm triggered.",
+        moDetails: "Breaks secondary wooden doors using lever tools during early morning hours.",
+        status: "Open",
+        createdAt: new Date(Date.now() - 24 * 3600000).toISOString(),
+        updatedAt: new Date(Date.now() - 6 * 3600000).toISOString(),
+        taskPending: true,
+      },
+      {
+        id: "c3",
+        firNumber: "FIR-2026-KA0403",
+        title: "UPI Phishing & Mule Account Extortion",
+        crimeType: "IT Act Sec 66D / IPC Sec 420 (Cheating)",
+        district: "Bengaluru Urban",
+        station: "Indiranagar PS",
+        victimName: "Rohan V.",
+        suspectName: "Rakesh K. (Runner)",
+        vehiclePlate: "KA-51-MB-1122",
+        narrative: "Victim duped of ₹1.4 Lakhs via fake electricity bill payment link.",
+        moDetails: "Sends phishing SMS claiming power disconnection within 2 hours with fake APK link.",
+        status: "In Progress",
+        createdAt: new Date(Date.now() - 72 * 3600000).toISOString(),
+        updatedAt: new Date(Date.now() - 4 * 3600000).toISOString(),
+        taskPending: false,
+      },
+      {
+        id: "c4",
+        firNumber: "FIR-2026-KA0404",
+        title: "Armed Robbery Attempt at Jewellery Store",
+        crimeType: "IPC Sec 395 / Sec 397 (Dacoity with Arms)",
+        district: "Mysuru City",
+        station: "Devaraja PS",
+        victimName: "Mahesh Jewellers",
+        suspectName: "Unknown Gang of 4",
+        vehiclePlate: "KA-09-XX-9900",
+        narrative: "Four armed suspects arrived on two bikes and attempted to loot showroom vault.",
+        moDetails: "Armed robbery using country-made pistols and stolen getaway bikes with fake plates.",
+        status: "Open",
+        createdAt: new Date(Date.now() - 36 * 3600000).toISOString(),
+        updatedAt: new Date(Date.now() - 2 * 3600000).toISOString(),
+        taskPending: true,
+      }
+    ];
+
+    this.suggestedLinkages.push({
+      id: "link_1",
+      sourceCaseId: "c1",
+      targetCaseId: "c2",
+      similarityScore: 87,
+      moMatchDetails: "Shared getaway vehicle KA-04-MH-1234 & matching night time window (10 PM - 3 AM).",
+      status: "Suggested",
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  getPoliceCases(station?: string, district?: string): PoliceCase[] {
+    return this.policeCases.filter(c => {
+      if (station && c.station.toLowerCase() !== station.toLowerCase()) return false;
+      if (district && c.district.toLowerCase() !== district.toLowerCase()) return false;
+      return true;
+    });
+  }
+
+  getPoliceCaseById(id: string): PoliceCase | undefined {
+    return this.policeCases.find(c => c.id === id || c.firNumber === id);
+  }
+
+  createPoliceCase(data: Partial<PoliceCase>): PoliceCase {
+    const newCase: PoliceCase = {
+      id: genId(),
+      firNumber: data.firNumber || `FIR-2026-KA${Math.floor(1000 + Math.random() * 9000)}`,
+      title: data.title || "Untitled Incident Case",
+      crimeType: data.crimeType || "IPC Sec 379 (Theft)",
+      district: data.district || "Bengaluru Urban",
+      station: data.station || "Peenya PS",
+      victimName: data.victimName || "Anonymous Citizen",
+      suspectName: data.suspectName || "Under Investigation",
+      vehiclePlate: data.vehiclePlate || "N/A",
+      narrative: data.narrative || "No initial narrative recorded.",
+      moDetails: data.moDetails || "Standard MO analysis pending.",
+      status: "Open",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      photoUrl: data.photoUrl,
+      voiceNotes: data.voiceNotes || [],
+      taskPending: true,
+    };
+    this.policeCases.unshift(newCase);
+    this.addAuditLog("create_fir", "io_402", "Inspector Patil", `Created new FIR record: ${newCase.firNumber} - ${newCase.title}`, newCase.id);
+    return newCase;
+  }
+
+  updatePoliceCase(id: string, updates: Partial<PoliceCase>): PoliceCase | undefined {
+    const c = this.getPoliceCaseById(id);
+    if (!c) return undefined;
+    Object.assign(c, updates, { updatedAt: new Date().toISOString() });
+    return c;
+  }
+
+  flagCase(caseId: string, flaggedBy: string, reason: string): FlaggedCase {
+    const c = this.getPoliceCaseById(caseId);
+    if (c) c.status = "Flagged";
+    const fc: FlaggedCase = {
+      id: genId(),
+      caseId,
+      firNumber: c?.firNumber || caseId,
+      title: c?.title || "Flagged Case",
+      flaggedBy,
+      reason,
+      status: "Pending",
+      timestamp: new Date().toISOString(),
+      district: c?.district || "Bengaluru Urban",
+    };
+    this.flaggedCases.unshift(fc);
+    this.addAuditLog("flag_case", flaggedBy, flaggedBy, `Flagged case ${c?.firNumber || caseId} for Analyst review: ${reason}`, caseId);
+    return fc;
+  }
+
+  getFlaggedCases(flaggedBy?: string): FlaggedCase[] {
+    if (flaggedBy) return this.flaggedCases.filter(f => f.flaggedBy === flaggedBy);
+    return this.flaggedCases;
+  }
+
+  suggestLinkage(sourceCaseId: string, targetCaseId: string, similarityScore: number, moMatchDetails: string): SuggestedLinkage {
+    const link: SuggestedLinkage = {
+      id: genId(),
+      sourceCaseId,
+      targetCaseId,
+      similarityScore,
+      moMatchDetails,
+      status: "Suggested",
+      timestamp: new Date().toISOString(),
+    };
+    this.suggestedLinkages.unshift(link);
+    return link;
+  }
+
+  getSuggestedLinkages(): SuggestedLinkage[] {
+    return this.suggestedLinkages;
+  }
+
+  confirmLinkage(linkageId: string, confirmedBy: string): SuggestedLinkage | undefined {
+    const link = this.suggestedLinkages.find(l => l.id === linkageId);
+    if (link) {
+      link.status = "Confirmed";
+      link.confirmedBy = confirmedBy;
+      this.addAuditLog("confirm_linkage", confirmedBy, confirmedBy, `Confirmed MO linkage between cases ${link.sourceCaseId} and ${link.targetCaseId}`, linkageId);
+    }
+    return link;
+  }
+
+  escalateToSP(caseId: string, analystId: string, analystNotes: string): SPEscalation {
+    const c = this.getPoliceCaseById(caseId);
+    if (c) c.status = "Escalated";
+
+    const fc = this.flaggedCases.find(f => f.caseId === caseId);
+    if (fc) fc.status = "Escalated";
+
+    const esc: SPEscalation = {
+      id: genId(),
+      caseId,
+      firNumber: c?.firNumber || caseId,
+      title: c?.title || "Escalated Case",
+      analystId,
+      analystNotes,
+      status: "Pending SP Review",
+      timestamp: new Date().toISOString(),
+      district: c?.district || "Bengaluru Urban",
+    };
+    this.spEscalations.unshift(esc);
+    this.addAuditLog("escalate_to_sp", analystId, analystId, `Escalated case ${c?.firNumber || caseId} to District SP: ${analystNotes}`, caseId);
+    return esc;
+  }
+
+  getSPEscalations(district?: string): SPEscalation[] {
+    if (district) return this.spEscalations.filter(e => e.district.toLowerCase() === district.toLowerCase());
+    return this.spEscalations;
+  }
+
+  authorizePatrol(caseId: string | undefined, clusterId: string | undefined, spId: string, officerId: string, officerName: string, location: string, district: string): PatrolDispatch {
+    if (caseId) {
+      const c = this.getPoliceCaseById(caseId);
+      if (c) c.status = "Authorized";
+      const fc = this.flaggedCases.find(f => f.caseId === caseId);
+      if (fc) fc.status = "Authorized";
+      const esc = this.spEscalations.find(e => e.caseId === caseId);
+      if (esc) esc.status = "Authorized";
+    }
+
+    const pd: PatrolDispatch = {
+      id: genId(),
+      clusterId,
+      caseId,
+      spId,
+      assignedOfficerId: officerId,
+      assignedOfficerName: officerName,
+      district,
+      location,
+      status: "Pending",
+      timestamp: new Date().toISOString(),
+    };
+    this.patrolDispatches.unshift(pd);
+    this.addAuditLog("authorize_patrol", spId, "DGP Alok Kumar", `Authorized tactical patrol dispatch to officer ${officerName} at ${location}`, pd.id);
+    return pd;
+  }
+
+  getPatrolDispatches(officerId?: string): PatrolDispatch[] {
+    if (officerId) return this.patrolDispatches.filter(p => p.assignedOfficerId === officerId || p.assignedOfficerName.toLowerCase().includes(officerId.toLowerCase()));
+    return this.patrolDispatches;
+  }
+
+  updatePatrolDispatchStatus(id: string, status: PatrolDispatch["status"], notes?: string): PatrolDispatch | undefined {
+    const pd = this.patrolDispatches.find(p => p.id === id);
+    if (pd) {
+      pd.status = status;
+      if (notes) pd.fieldNotes = notes;
+
+      if (pd.caseId && (status === "Verified" || status === "False Alarm")) {
+        const c = this.getPoliceCaseById(pd.caseId);
+        if (c) c.status = status === "Verified" ? "Resolved" : "In Progress";
+        const fc = this.flaggedCases.find(f => f.caseId === pd.caseId);
+        if (fc) fc.status = status === "Verified" ? "Resolved" : "Pending";
+      }
+      this.addAuditLog("field_verification", pd.assignedOfficerName, pd.assignedOfficerName, `Patrol dispatch ${id} marked as ${status}. Field notes: ${notes || "None"}`, id);
+    }
+    return pd;
+  }
+
+  requestCrossDistrictAccess(caseId: string, requestingOfficerId: string, requestingDistrict: string, targetDistrict: string): CrossDistrictRequest {
+    const c = this.getPoliceCaseById(caseId);
+    const cdr: CrossDistrictRequest = {
+      id: genId(),
+      caseId,
+      firNumber: c?.firNumber || caseId,
+      requestingOfficerId,
+      requestingDistrict,
+      targetDistrict,
+      status: "Pending",
+      timestamp: new Date().toISOString(),
+    };
+    this.crossDistrictRequests.unshift(cdr);
+    this.addAuditLog("request_cross_district", requestingOfficerId, requestingOfficerId, `Requested cross-district intelligence access from ${targetDistrict} for case ${c?.firNumber || caseId}`, cdr.id);
+    return cdr;
+  }
+
+  getCrossDistrictRequests(targetDistrict?: string): CrossDistrictRequest[] {
+    if (targetDistrict) return this.crossDistrictRequests.filter(r => r.targetDistrict.toLowerCase() === targetDistrict.toLowerCase());
+    return this.crossDistrictRequests;
+  }
+
+  updateCrossDistrictRequestStatus(id: string, status: "Approved" | "Denied"): CrossDistrictRequest | undefined {
+    const req = this.crossDistrictRequests.find(r => r.id === id);
+    if (req) {
+      req.status = status;
+      this.addAuditLog("cross_district_decision", "sp_8821", "DGP Alok Kumar", `Cross-district access request ${id} ${status}`, id);
+    }
+    return req;
   }
 }
 

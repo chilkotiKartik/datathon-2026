@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
@@ -17,7 +18,7 @@ declare module "http" {
 function setupCors(app: express.Application) {
   app.use((req, res, next) => {
     const origins = new Set<string>([
-      "https://sankalp-ai.replit.app", // production domain — always allowed
+      "https://sahasra.app", // production domain — always allowed
     ]);
 
     if (process.env.REPLIT_DEV_DOMAIN) {
@@ -166,48 +167,9 @@ function serveExpoManifest(platform: string, req: Request, res: Response) {
   res.send(manifest);
 }
 
-function serveLandingPage({
-  req,
-  res,
-  landingPageTemplate,
-  appName,
-}: {
-  req: Request;
-  res: Response;
-  landingPageTemplate: string;
-  appName: string;
-}) {
-  const forwardedProto = req.header("x-forwarded-proto");
-  const protocol = forwardedProto || req.protocol || "https";
-  const forwardedHost = req.header("x-forwarded-host");
-  const host = forwardedHost || req.get("host");
-  const baseUrl = `${protocol}://${host}`;
-  // Use the dev domain for QR code — Express serves the static manifest on port 80
-  const devDomain = process.env.REPLIT_DEV_DOMAIN;
-  const expsUrl = devDomain || host;
 
-  log(`baseUrl`, baseUrl);
-  log(`expsUrl`, expsUrl);
-
-  const html = landingPageTemplate
-    .replace(/BASE_URL_PLACEHOLDER/g, baseUrl)
-    .replace(/EXPS_URL_PLACEHOLDER/g, expsUrl ?? "")
-    .replace(/APP_NAME_PLACEHOLDER/g, appName);
-
-  res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.status(200).send(html);
-}
 
 function configureExpoAndLanding(app: express.Application) {
-  const templatePath = path.resolve(
-    process.cwd(),
-    "server",
-    "templates",
-    "landing-page.html",
-  );
-  const landingPageTemplate = fs.readFileSync(templatePath, "utf-8");
-  const appName = getAppName();
-
   log("Serving static Expo files with dynamic manifest routing");
 
   app.use((req: Request, res: Response, next: NextFunction) => {
@@ -229,58 +191,32 @@ function configureExpoAndLanding(app: express.Application) {
       return proxyToMetro(req, res);
     }
 
-    if (req.path !== "/" && req.path !== "/manifest") {
-      return next();
-    }
-
-    const platform = req.header("expo-platform");
-    if (platform && (platform === "ios" || platform === "android")) {
-      return serveExpoManifest(platform, req, res);
-    }
-
-    if (req.path === "/") {
-      // Always serve the landing page at root — shows Expo Go QR code + web app link
-      return serveLandingPage({ req, res, landingPageTemplate, appName });
+    if (req.path === "/manifest") {
+      const platform = req.header("expo-platform");
+      if (platform && (platform === "ios" || platform === "android")) {
+        return serveExpoManifest(platform, req, res);
+      }
     }
 
     next();
   });
-
-  // ── WEB PORTALS ───────────────────────────────────────────────────────────────
-  const portalRoute = (file: string) => (_req: Request, res: Response) => {
-    res.setHeader("Cache-Control", "no-store");
-    res.sendFile(path.resolve(process.cwd(), "server", "web", file));
-  };
-  app.get("/dept",        portalRoute("dept.html"));
-  app.get("/web/dept",    portalRoute("dept.html"));
-  app.get("/web/dept/",   portalRoute("dept.html"));
-  app.get("/web/cpr",     portalRoute("cpr.html"));
-  app.get("/web/cpr/",    portalRoute("cpr.html"));
-  app.get("/web/pcr",     portalRoute("pcr.html"));
-  app.get("/web/pcr/",    portalRoute("pcr.html"));
-  app.get("/web/video",   portalRoute("video.html"));
-  app.get("/web/video/",  portalRoute("video.html"));
-  app.get("/web/public",  portalRoute("public.html"));
-  app.get("/web/public/", portalRoute("public.html"));
-  app.get("/web/rti",     portalRoute("rti.html"));
-  app.get("/web/rti/",    portalRoute("rti.html"));
-  app.get("/web/portal",  portalRoute("portal.html"));
-  app.get("/web/portal/", portalRoute("portal.html"));
 
   // Serve uploaded files (complaint photos, audio recordings, etc.)
   app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads"), {
     setHeaders: (res) => { res.setHeader("Cache-Control", "public, max-age=86400"); }
   }));
 
-  // Serve self-hosted public assets (Leaflet, etc.) — avoids CDN blocking in production
+  // Serve self-hosted public assets (Leaflet, etc.)
   app.use(express.static(path.resolve(process.cwd(), "public"), {
     setHeaders: (res) => { res.setHeader("Cache-Control", "public, max-age=604800"); }
   }));
 
-  // Serve the built web bundle first so hashed asset filenames are resolved correctly
+  // Serve the built full-stack React web bundle
+  // Serve built SAHASRA Vite Web bundle
+  app.use(express.static(path.resolve(process.cwd(), "web", "dist")));
   app.use(express.static(path.resolve(process.cwd(), "static-build", "web")));
   app.use(express.static(path.resolve(process.cwd(), "static-build")));
-  // Raw source assets as fallback (for icons, splash, etc. not hashed by Metro)
+  app.use("/assets", express.static(path.resolve(process.cwd(), "web", "dist", "assets")));
   app.use("/assets", express.static(path.resolve(process.cwd(), "assets")));
 
   // SPA fallback — all non-API, non-static routes serve index.html for client-side routing
@@ -288,11 +224,14 @@ function configureExpoAndLanding(app: express.Application) {
     if (req.path.startsWith("/api") || req.path.startsWith("/_expo") || req.path.startsWith("/assets")) {
       return next();
     }
+    const viteIndexPath = path.resolve(process.cwd(), "web", "dist", "index.html");
     const webIndexPath = path.resolve(process.cwd(), "static-build", "web", "index.html");
-    if (fs.existsSync(webIndexPath)) {
+    const targetIndex = fs.existsSync(viteIndexPath) ? viteIndexPath : webIndexPath;
+
+    if (fs.existsSync(targetIndex)) {
       res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
       res.setHeader("Pragma", "no-cache");
-      return res.sendFile(webIndexPath);
+      return res.sendFile(targetIndex);
     }
     next();
   });
@@ -332,12 +271,13 @@ function setupErrorHandler(app: express.Application) {
 
   setupErrorHandler(app);
 
-  const port = parseInt(process.env.PORT || "5000", 10);
+  // Catalyst AppSail injects the listen port via X_ZOHO_CATALYST_LISTEN_PORT.
+  const port = parseInt(process.env.X_ZOHO_CATALYST_LISTEN_PORT || process.env.PORT || "5000", 10);
   server.listen(
     {
       port,
       host: "0.0.0.0",
-      reusePort: true,
+      reusePort: process.platform !== "win32",
     },
     () => {
       log(`express server serving on port ${port}`);

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "SANKALP AI",
-    "slug": "sankalp-ai",
+    "name": "SAHASRA",
+    "slug": "sahasra",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "sankalpai",
+    "scheme": "sahasra",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
@@ -15,16 +15,16 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.sankalpai",
+      "bundleIdentifier": "com.sahasra.ai",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "SANKALP AI needs your location to show nearby civic issues, police stations, and to share your location during SOS emergencies.",
-        "NSLocationAlwaysUsageDescription": "SANKALP AI uses your location in the background during active SOS emergencies to keep police updated.",
-        "NSMicrophoneUsageDescription": "SANKALP AI records audio during Women Safety SOS activations as evidence.",
-        "NSSpeechRecognitionUsageDescription": "SANKALP AI uses speech to detect voice-activated SOS commands."
+        "NSLocationWhenInUseUsageDescription": "SAHASRA needs your location to show nearby civic issues, police stations, and to share your location during SOS emergencies.",
+        "NSLocationAlwaysUsageDescription": "SAHASRA uses your location in the background during active SOS emergencies to keep police updated.",
+        "NSMicrophoneUsageDescription": "SAHASRA records audio during Women Safety SOS activations as evidence.",
+        "NSSpeechRecognitionUsageDescription": "SAHASRA uses speech to detect voice-activated SOS commands."
       }
     },
     "android": {
-      "package": "com.sankalpai",
+      "package": "com.sahasra.ai",
       "adaptiveIcon": {
         "backgroundColor": "#0A0F1C",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -51,7 +51,7 @@
       [
         "expo-router",
         {
-          "origin": "sankalpai://"
+          "origin": "sahasra://"
         }
       ],
       "expo-font",
@@ -59,8 +59,8 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "SANKALP AI needs your location to show nearby civic issues, police stations, and to share your GPS during SOS emergencies.",
-          "locationWhenInUsePermission": "SANKALP AI needs your location to show nearby civic issues and police stations.",
+          "locationAlwaysAndWhenInUsePermission": "SAHASRA needs your location to show nearby civic issues, police stations, and to share your GPS during SOS emergencies.",
+          "locationWhenInUsePermission": "SAHASRA needs your location to show nearby civic issues and police stations.",
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
         }
@@ -77,7 +77,16 @@
       [
         "expo-av",
         {
-          "microphonePermission": "SANKALP AI records audio during Women Safety SOS activations as evidence."
+          "microphonePermission": "SAHASRA records audio during Women Safety SOS activations as evidence."
+        }
+      ],
+      "expo-secure-store",
+      "expo-sqlite",
+      "@sentry/react-native",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "SAHASRA uses the camera to capture geotagged incident photos and scan evidence QR codes."
         }
       ]
     ],
@@ -87,12 +96,12 @@
     },
     "extra": {
       "router": {
-        "origin": "sankalpai://"
+        "origin": "sahasra://"
       },
       "eas": {
-        "projectId": "a882b97c-171c-4c3a-8499-5c3533c11516"
+        "projectId": "e05aefde-a5aa-4469-92f6-11f53068d8c2"
       }
     },
-    "owner": "sportifykartik"
+    "owner": "uuyhb"
   }
 }

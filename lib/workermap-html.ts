@@ -27,19 +27,18 @@ export interface DistrictHeatData {
 }
 
 export const DISTRICT_CENTERS: Record<string, [number, number]> = {
-  "Dehradun":          [30.3165, 78.0322],
-  "Haridwar":          [29.9457, 78.1642],
-  "Tehri Garhwal":     [30.3822, 78.4800],
-  "Pauri Garhwal":     [29.6864, 78.9764],
-  "Rudraprayag":       [30.2846, 78.9806],
-  "Chamoli":           [30.4090, 79.3206],
-  "Uttarkashi":        [30.7268, 78.4354],
-  "Pithoragarh":       [29.5829, 80.2178],
-  "Bageshwar":         [29.8371, 79.7715],
-  "Almora":            [29.5971, 79.6596],
-  "Champawat":         [29.3377, 80.0914],
-  "Nainital":          [29.3919, 79.4542],
-  "Udham Singh Nagar": [28.9982, 79.5050],
+  "Bengaluru Urban":   [12.9716, 77.5946],
+  "Bengaluru Rural":   [13.1986, 77.7063],
+  "Peenya":            [13.0287, 77.5194],
+  "Koramangala":       [12.9352, 77.6146],
+  "Indiranagar":       [12.9784, 77.6408],
+  "Whitefield":        [12.9698, 77.7500],
+  "Jayanagar":         [12.9291, 77.5823],
+  "Electronic City":   [12.8456, 77.6603],
+  "Mysuru":            [12.2958, 76.6394],
+  "Dharwad":           [15.4589, 75.0078],
+  "Hubballi":          [15.3647, 75.1240],
+  "Karnataka":         [12.9716, 77.5946],
 };
 
 export function buildWorkerMapHTML(
@@ -48,7 +47,7 @@ export function buildWorkerMapHTML(
   selectedId: string | null,
   showHeat: boolean,
   isWebPlatform: boolean,
-  origin = "https://sankalp-ai.replit.app"
+  origin = "https://sahasra.app"
 ): string {
   const wJson = JSON.stringify(workers);
   const hJson = JSON.stringify(heatData);

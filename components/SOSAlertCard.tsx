@@ -1,8 +1,19 @@
 import React, { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, Animated, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { SOSAlert, SOS_META } from "@/context/AppContext";
+import { SOSAlert } from "@/context/AppContext";
 import Colors from "@/constants/colors";
+
+const LOCAL_SOS_META: Record<string, { label: string; icon: string; color: string }> = {
+  gas_leak:        { label: "Gas Leak",        icon: "alert-triangle", color: "#F59E0B" },
+  water_burst:     { label: "Water Burst",     icon: "droplet",        color: "#3B82F6" },
+  electric_hazard: { label: "Electric Hazard", icon: "zap",            color: "#EF4444" },
+  fire_risk:       { label: "Fire Risk",       icon: "alert-triangle", color: "#EF4444" },
+  road_accident:   { label: "Road Accident",   icon: "activity",       color: "#F59E0B" },
+  women_safety:    { label: "Women Safety",    icon: "shield",         color: "#8B5CF6" },
+  medical:         { label: "Medical",         icon: "heart",          color: "#22C55E" },
+  infrastructure:  { label: "Infrastructure",  icon: "settings",       color: "#6B7280" },
+};
 
 interface Props {
   alert: SOSAlert;
@@ -18,7 +29,7 @@ function timeAgo(dateStr: string): string {
 }
 
 export function SOSAlertCard({ alert, onResolve }: Props) {
-  const meta = SOS_META[alert.category];
+  const meta = LOCAL_SOS_META[alert.category || "medical"] || LOCAL_SOS_META["medical"];
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -86,7 +97,7 @@ export function SOSAlertCard({ alert, onResolve }: Props) {
       <View style={styles.bottomRow}>
         <View style={styles.timeMeta}>
           <Feather name="clock" size={11} color={Colors.textMuted} />
-          <Text style={styles.time}>{timeAgo(alert.triggeredAt)}</Text>
+          <Text style={styles.time}>{timeAgo(alert.triggeredAt || new Date().toISOString())}</Text>
           {alert.respondingWorker && (
             <>
               <Text style={styles.sep}>•</Text>

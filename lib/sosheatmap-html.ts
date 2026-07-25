@@ -8,7 +8,7 @@ export interface SosHeatEntry {
   critical: number; // P1
 }
 
-export function buildSosHeatmapHTML(entries: SosHeatEntry[], origin = "https://sankalp-ai.replit.app"): string {
+export function buildSosHeatmapHTML(entries: SosHeatEntry[], origin = "https://sahasra.app"): string {
   const eJson = JSON.stringify(entries);
   const centersJson = JSON.stringify(DISTRICT_CENTERS);
 

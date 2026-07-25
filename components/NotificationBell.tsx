@@ -6,7 +6,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Colors from "@/constants/colors";
-import { useNotifications, AppNotification, NotificationType } from "@/context/NotificationContext";
+import { useNotifications, Notification as AppNotification } from "@/context/NotificationContext";
+
+type NotificationType = string;
 
 function timeAgo(iso: string): string {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -16,7 +18,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
-const TYPE_CONFIG: Record<NotificationType, { icon: string; color: string; bg: string }> = {
+const TYPE_CONFIG: Record<string, { icon: string; color: string; bg: string }> = {
   complaint_update: { icon: "document-text", color: Colors.blue, bg: Colors.blueBg },
   sos_alert:        { icon: "warning",       color: Colors.red,  bg: Colors.redBg },
   announcement:     { icon: "megaphone",     color: Colors.saffron, bg: Colors.saffronBg },
@@ -43,8 +45,8 @@ function NotifItem({ notif, onPress }: { notif: AppNotification; onPress: () => 
         </View>
         <View style={{ flex: 1 }}>
           <Text style={[styles.notifTitle, !notif.read && { color: "#fff" }]} numberOfLines={1}>{notif.title}</Text>
-          <Text style={styles.notifBody} numberOfLines={2}>{notif.body}</Text>
-          <Text style={styles.notifTime}>{timeAgo(notif.timestamp)}</Text>
+          <Text style={styles.notifBody} numberOfLines={2}>{notif.message}</Text>
+          <Text style={styles.notifTime}>{timeAgo(new Date(notif.timestamp).toISOString())}</Text>
         </View>
         {!notif.read && <View style={[styles.unreadDot, { backgroundColor: cfg.color }]} />}
       </Pressable>

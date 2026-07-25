@@ -6,30 +6,32 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
-    },
-    "apk": {
-      "android": {
-        "buildType": "apk"
-      },
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_DOMAIN": "fiinalszip-production.up.railway.app"
+        "EXPO_PUBLIC_API_URL": "https://fiinalszip-production.up.railway.app"
+      }
+    },
+    "apk": {
+      "android": { "buildType": "apk" },
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://fiinalszip-production.up.railway.app",
+        "EXPO_PUBLIC_SENTRY_DSN": ""
       }
     },
     "preview": {
-      "android": {
-        "buildType": "apk"
-      },
+      "android": { "buildType": "apk" },
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_DOMAIN": "fiinalszip-production.up.railway.app"
+        "EXPO_PUBLIC_API_URL": "https://fiinalszip-production.up.railway.app",
+        "EXPO_PUBLIC_SENTRY_DSN": ""
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_DOMAIN": "fiinalszip-production.up.railway.app"
+        "EXPO_PUBLIC_API_URL": "https://fiinalszip-production.up.railway.app",
+        "EXPO_PUBLIC_SENTRY_DSN": ""
       }
     }
   },
