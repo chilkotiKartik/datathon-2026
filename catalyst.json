@@ -9,6 +9,10 @@
     {
       "source": "deploy",
       "name": "Sahasra-api"
+    },
+    {
+      "source": "appsail-nodejs",
+      "name": "hello"
     }
   ]
 }

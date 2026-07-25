@@ -55,7 +55,7 @@ const prunedPackage = {
   },
   dependencies: {
     '@simplewebauthn/server': rootPackage.dependencies['@simplewebauthn/server'] || '^10.0.1',
-    'bcrypt': rootPackage.dependencies['bcrypt'] || '^6.0.0',
+    'bcryptjs': rootPackage.dependencies['bcryptjs'] || '^2.4.3',
     'drizzle-orm': rootPackage.dependencies['drizzle-orm'] || '^0.39.3',
     'express': rootPackage.dependencies['express'] || '^5.2.1',
     'haversine-distance': rootPackage.dependencies['haversine-distance'] || '^1.2.4',

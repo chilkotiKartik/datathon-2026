@@ -1359,7 +1359,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (phone.length !== 10) return res.status(400).json({ message: "Phone must be 10 digits" });
       const existing = await storage.findUserByPhone(phone);
       if (existing) return res.status(400).json({ message: "Phone number already registered" });
-      const bcrypt = await import("bcrypt");
+      const bcrypt = await import("bcryptjs");
       const hashedPin = await bcrypt.hash(pin, 10);
       const user = await storage.createUser({
         name, phone, pin: hashedPin, role: "citizen",
@@ -1386,7 +1386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Backward-compat: bcrypt hashes start with $2b$ / $2a$; legacy plain-text pins compared directly
       let pinValid = false;
       if (user.pin && (user.pin.startsWith("$2b$") || user.pin.startsWith("$2a$"))) {
-        const bcrypt = await import("bcrypt");
+        const bcrypt = await import("bcryptjs");
         pinValid = await bcrypt.compare(pin, user.pin);
       } else {
         pinValid = user.pin === pin;
