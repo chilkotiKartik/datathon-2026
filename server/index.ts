@@ -233,11 +233,44 @@ function configureExpoAndLanding(app: express.Application) {
       res.setHeader("Pragma", "no-cache");
       return res.sendFile(targetIndex);
     }
+    // No static frontend in this deployment (API-only). Serve a live-status page
+    // so the root path confirms the server is actually RUNNING (not a static 404).
+    if (req.method === "GET") {
+      return res.status(200).type("html").send(SERVER_LANDING_HTML);
+    }
     next();
   });
 
   log("Expo routing: Checking expo-platform header on / and /manifest");
 }
+
+const SERVER_LANDING_HTML = `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAHASRA API — live</title><style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;background:#0A0F1C;color:#F0F4FF;
+display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px}
+.card{max-width:560px;width:100%;background:#141A2E;border:1px solid #1F2A44;border-radius:16px;padding:28px 30px}
+h1{margin:0 0 4px;font-size:22px;letter-spacing:.16em;color:#FF9933}
+.sub{color:#8892B0;font-size:13px;margin-bottom:18px}
+.pill{display:inline-flex;align-items:center;gap:7px;background:rgba(34,197,94,.12);border:1px solid #22C55E;
+color:#22C55E;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;margin-bottom:20px}
+.dot{width:8px;height:8px;border-radius:50%;background:#22C55E}
+ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+li a{color:#3B82F6;text-decoration:none}li a:hover{text-decoration:underline}
+.k{color:#8892B0}.foot{margin-top:20px;color:#5A6785;font-size:11px;line-height:1.6}
+</style></head><body><div class="card">
+<h1>SAHASRA</h1><div class="sub">KSP Crime-Intelligence Platform · API</div>
+<div class="pill"><span class="dot"></span>SERVER LIVE — running on Catalyst AppSail</div>
+<ul>
+<li><span class="k">GET</span> <a href="/api/health">/api/health</a> — service status</li>
+<li><span class="k">GET</span> <a href="/api/dataset/summary">/api/dataset/summary</a> — real KSP corpus (201,733 records)</li>
+<li><span class="k">POST</span> <span class="k">/api/v2/auth/login</span> — badge + password (KSP-1001 / SH-KRM / SA-001)</li>
+<li><span class="k">GET</span> <span class="k">/api/v2/intel/summary</span> — CCTNS connectors (auth)</li>
+</ul>
+<div class="foot">The mobile app (Expo) and web dashboard connect to this API.<br>
+If you can read this, the Node server is running — not static hosting.</div>
+</div></body></html>`;
 
 function setupErrorHandler(app: express.Application) {
   app.use((err: unknown, _req: Request, res: Response, next: NextFunction) => {
