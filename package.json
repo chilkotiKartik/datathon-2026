@@ -14,7 +14,7 @@
     "server:build": "esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=build/index.mjs",
     "server:prod": "NODE_ENV=production node build/index.mjs",
     "build": "npm run server:build",
-    "catalyst:build": "npm run server:build",
+    "catalyst:build": "npm run catalyst:client:build && npm run server:build",
     "catalyst:start": "NODE_ENV=production node build/index.mjs",
     "catalyst:client:build": "cd web && npm install && npm run build",
     "db:push": "drizzle-kit push",
