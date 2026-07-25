@@ -35,6 +35,7 @@ yarn-error.*
 .env*.local
 
 # build artifacts
+build/
 server_dist/
 
 # typescript
