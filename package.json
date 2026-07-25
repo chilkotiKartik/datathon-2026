@@ -18,6 +18,7 @@
     "catalyst:start": "NODE_ENV=production node build/index.mjs",
     "catalyst:client:build": "cd web && npm install && npm run build",
     "db:push": "drizzle-kit push",
+    "prepare:deploy": "node scripts/prepare-deploy.js",
     "start": "node build/index.mjs",
     "lint": "npx expo lint",
     "lint:fix": "npx expo lint --fix"

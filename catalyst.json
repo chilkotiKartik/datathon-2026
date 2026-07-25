@@ -7,19 +7,8 @@
   },
   "appsail": [
     {
-      "source": ".",
-      "name": "Sahasra-api",
-      "ignore": [
-        "node_modules",
-        "web/node_modules",
-        ".git",
-        ".expo",
-        "android",
-        "ios",
-        ".gradle",
-        "web/src",
-        "web/public"
-      ]
+      "source": "deploy",
+      "name": "Sahasra-api"
     }
   ]
 }

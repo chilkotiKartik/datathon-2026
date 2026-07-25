@@ -43,3 +43,8 @@ server_dist/
 .vercel
 
 .env
+deploy/
+build/
+*.log
+catalyst-debug.log
+.catalystrc
